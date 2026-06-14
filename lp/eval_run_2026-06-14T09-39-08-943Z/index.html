@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tiny-eval report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-primary: #202020;
+      --background-secondary: #161616;
+      --background-modifier-border: #363636;
+      --text-normal: #dcddde;
+      --text-muted: #999999;
+      --text-accent: #8a5cf5;
+      --interactive-accent: #7f6df2;
+      --green: #70c27e;
+      --red: #ff6b6b;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--background-primary);
+      color: var(--text-normal);
+      font-family: "Iosevka Charon", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: end;
+      border-bottom: 1px solid var(--background-modifier-border);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; font-weight: 600; }
+    h2 { font-size: 16px; margin: 6px 0 10px; }
+    p { color: var(--text-muted); white-space: pre-wrap; line-height: 1.45; }
+    .meta { color: var(--text-muted); font-size: 13px; }
+    .score {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--background-secondary);
+      min-width: 132px;
+      text-align: right;
+    }
+    .score strong { color: var(--green); font-size: 24px; display: block; }
+    .score .model { color: var(--text-normal); display: block; max-width: 280px; overflow-wrap: anywhere; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--background-secondary);
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--background-modifier-border);
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    th { color: var(--text-muted); font-weight: 600; }
+    tr:last-child td { border-bottom: 0; }
+    .rating { color: var(--green); font-weight: 600; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    @media (max-width: 700px) {
+      header { grid-template-columns: 1fr; }
+      .score { text-align: left; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="meta">tiny-eval · 2026-06-14T09:43:28.705Z</div>
+        <h1>lodash/lodash</h1>
+        <div class="meta">eval deepseek/deepseek-v4-pro, deepseek/deepseek-v4-flash · judge deepseek/deepseek-v4-pro</div>
+      </div>
+      <div class="score">
+        <span class="meta">leader</span>
+        <strong>4.7</strong>
+        <span class="model">deepseek/deepseek-v4-pro</span>
+      </div>
+    </header>
+
+    <table>
+      <thead>
+        <tr>
+          <th>rank</th>
+          <th>model</th>
+          <th>average</th>
+          <th>cases</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+        <td>1</td>
+        <td>deepseek/deepseek-v4-pro</td>
+        <td><span class="rating">4.7</span></td>
+        <td>3</td>
+      </tr><tr>
+        <td>2</td>
+        <td>deepseek/deepseek-v4-flash</td>
+        <td><span class="rating">2.3</span></td>
+        <td>3</td>
+      </tr></tbody>
+    </table>
+
+    <table>
+      <thead>
+        <tr>
+          <th>case</th>
+          <th>rating</th>
+          <th>model</th>
+          <th>judge notes</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+        <td>lodash/lodash#1</td>
+        <td><span class="rating">10.0</span></td>
+        <td>deepseek/deepseek-v4-pro</td>
+        <td>The candidate implementation is identical to the original merged PR. It faithfully replaces the Makefile with a JavaScript-based build system, implementing the same compilation steps (Closure Compiler and UglifyJS) with pre- and post-processing. It is likely to compile and work correctly.</td>
+      </tr><tr>
+        <td>lodash/lodash#2</td>
+        <td><span class="rating">5.0</span></td>
+        <td>deepseek/deepseek-v4-flash</td>
+        <td>The candidate implements the core idea of saving the smallest minified file as lodash.min.js but deviates from the original PR in several ways: 1) It compares uncompressed file sizes instead of gzipped sizes, which changes the selection criterion. 2) It does not refactor the build script to use a generic invoke function, leaving the original compile/gzip/uglify helpers unchanged. 3) The counter-based completion detection is fragile (e.g., if an error occurs before incrementing). The code is likely to compile, but the behavior is not fully equivalent to the merged PR.</td>
+      </tr><tr>
+        <td>lodash/lodash#2</td>
+        <td><span class="rating">3.0</span></td>
+        <td>deepseek/deepseek-v4-pro</td>
+        <td>The candidate adds code to save the smallest minified distribution as lodash.min.js, but it compares the uncompressed source lengths (compilerResult.length vs uglifyResult.length) instead of the gzipped sizes used by the original PR. This changes the selection criterion and will produce different (potentially less optimal) output, thus failing to replicate the intended behavior. The code would compile and run, but the functionality is not correctly implemented relative to the merged PR.</td>
+      </tr><tr>
+        <td>lodash/lodash#1</td>
+        <td><span class="rating">1.0</span></td>
+        <td>deepseek/deepseek-v4-flash</td>
+        <td>The candidate diff only deletes the Makefile but does not include the new build.js file or the updated build/pre-compile.js and build/post-compile.js modules. Without those essential parts, the build system is completely missing and cannot function. The change fails to implement the intended replacement and would not compile.</td>
+      </tr><tr>
+        <td>lodash/lodash#9</td>
+        <td><span class="rating">1.0</span></td>
+        <td>deepseek/deepseek-v4-flash</td>
+        <td>The candidate diff contains no changes, so it fails to add the benchmark script (benchmark/test.js) or update package.json with the devDependency. It does not implement the intended functionality at all.</td>
+      </tr><tr>
+        <td>lodash/lodash#9</td>
+        <td><span class="rating">1.0</span></td>
+        <td>deepseek/deepseek-v4-pro</td>
+        <td>The candidate diff is empty, meaning it implements none of the original PR&#39;s changes. The original PR added a new Node.js benchmark file and updated package.json with a devDependency on &#39;colors&#39;. The candidate fails to replicate any of this functionality.</td>
+      </tr></tbody>
+    </table>
+
+    <div class="grid"><section class="card">
+        <div class="meta">PR #1 · 0ad7ab8c21e4</div>
+        <h2>lodash/lodash</h2>
+        <p># Replace the `Makefile` with a JavaScript-based build system.</p>
+      </section><section class="card">
+        <div class="meta">PR #2 · d6757a085ef0</div>
+        <h2>lodash/lodash</h2>
+        <p># Auto-minification
+
+`build.js` will now save the smallest minified distribution as `lodash.min.js`. See issue #1 for the discussion.</p>
+      </section><section class="card">
+        <div class="meta">PR #9 · 61ca57234313</div>
+        <h2>lodash/lodash</h2>
+        <p># Add Node.js benchmark. Fixes #8
+
+![screenshot](https://img.skitch.com/20120515-gks14k4csutkk3ct3t886ubtg9.png)</p>
+      </section></div>
+  </main>
+</body>
+</html>

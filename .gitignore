@@ -177,3 +177,5 @@ dist
 
 # tiny-eval generated reports
 eval_run_*/
+!lp/eval_run_*/
+!lp/eval_run_*/*
