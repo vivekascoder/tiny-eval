@@ -10,6 +10,7 @@ OPENROUTER_API_KEY=... bun run tval run-eval \
   --eval-llms anthropic/claude-sonnet-4,openai/gpt-4.1 \
   --pr-summary-llm openai/gpt-4.1-mini \
   --eval-judge-llm anthropic/claude-sonnet-4 \
+  --prs 12,34 \
   --limit 3 \
   --concurrency 4 \
   --retries 2
@@ -22,6 +23,7 @@ Options:
 - `--pr-summary-llm`: model used to summarize PRs when PR docs are empty.
 - `--eval-judge-llm`: model used to judge candidate diffs.
 - `--output`: optional output directory name under `evals/`.
+- `--prs`: optional comma-separated PR numbers to evaluate instead of the default PR selection. The flag may also be repeated.
 - `--limit`: optional eval case count, default `3`.
 - `--concurrency`: optional number of eval jobs to run in parallel with Bun workers, default `4`.
 - `--retries`: optional transient failure retries per eval job, default `2`.

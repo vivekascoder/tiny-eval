@@ -15,10 +15,8 @@ export async function prepareDataset(repoSlug: string, options: CliOptions): Pro
   console.log(`[dataset] cloning validation copy from cache`);
   await cloneFromCache(cachedRepo, validationRepoDir, validationWorkspace);
 
-  console.log(`[github] fetching candidate PRs`);
-  const pulls = await githubJson<PullRequest[]>(
-    `https://api.github.com/repos/${repoSlug}/pulls?state=closed&sort=created&direction=asc&per_page=${Math.max(options.limit * 20, 50)}`,
-  );
+  const requestedPrs = options.prs && options.prs.length > 0;
+  const pulls = await fetchPullRequests(repoSlug, options);
 
   const dataset: EvalDatasetItem[] = [];
   try {
@@ -50,7 +48,7 @@ export async function prepareDataset(repoSlug: string, options: CliOptions): Pro
         commitBeforePR,
       });
 
-      if (dataset.length >= options.limit) {
+      if (!requestedPrs && dataset.length >= options.limit) {
         break;
       }
     }
@@ -63,6 +61,22 @@ export async function prepareDataset(repoSlug: string, options: CliOptions): Pro
   }
 
   return dataset;
+}
+
+async function fetchPullRequests(repoSlug: string, options: CliOptions): Promise<PullRequest[]> {
+  if (options.prs && options.prs.length > 0) {
+    console.log(`[github] fetching requested PRs: ${options.prs.map((pr) => `#${pr}`).join(", ")}`);
+    const pulls: PullRequest[] = [];
+    for (const prNumber of options.prs) {
+      pulls.push(await githubJson<PullRequest>(`https://api.github.com/repos/${repoSlug}/pulls/${prNumber}`));
+    }
+    return pulls;
+  }
+
+  console.log(`[github] fetching candidate PRs`);
+  return githubJson<PullRequest[]>(
+    `https://api.github.com/repos/${repoSlug}/pulls?state=closed&sort=created&direction=asc&per_page=${Math.max(options.limit * 20, 50)}`,
+  );
 }
 
 function formatPrDocs(pr: PullRequest): string {

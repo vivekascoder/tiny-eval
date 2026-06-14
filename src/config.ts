@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import type { CliOptions } from "./types.ts";
 
 export const usage = `Usage:
-  tval run-eval --repo <owner/repo|github-url> --eval-llms <model>[,<model>...] --pr-summary-llm <model> --eval-judge-llm <model> [--output <name>] [--limit 3] [--concurrency 4] [--retries 2]
+  tval run-eval --repo <owner/repo|github-url> --eval-llms <model>[,<model>...] --pr-summary-llm <model> --eval-judge-llm <model> [--output <name>] [--prs 12,34] [--limit 3] [--concurrency 4] [--retries 2]
 
 Environment:
   OPENROUTER_API_KEY is required for LLM summary, eval, and judge calls.`;
@@ -51,6 +51,7 @@ export function parseOptions(args: string[]): CliOptions {
   const evalLLMs = requiredList(values, "eval-llms");
   const prSummaryLLM = required(values, "pr-summary-llm");
   const evalJudgeLLM = required(values, "eval-judge-llm");
+  const prs = optionalPositiveIntegerList(values, "prs");
   const limit = Number(lastValue(values, "limit") ?? 3);
   const concurrency = Number(lastValue(values, "concurrency") ?? 4);
   const retries = Number(lastValue(values, "retries") ?? 2);
@@ -71,6 +72,7 @@ export function parseOptions(args: string[]): CliOptions {
     prSummaryLLM,
     evalJudgeLLM,
     output: optionalString(lastValue(values, "output")),
+    prs,
     limit,
     concurrency,
     retries,
@@ -153,6 +155,26 @@ function requiredList(values: Map<string, Array<string | boolean>>, key: string)
   }
 
   return [...new Set(models)];
+}
+
+function optionalPositiveIntegerList(values: Map<string, Array<string | boolean>>, key: string): number[] | undefined {
+  const items = (values.get(key) ?? [])
+    .filter((value): value is string => typeof value === "string")
+    .flatMap((value) => value.split(","))
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (items.length === 0) {
+    return undefined;
+  }
+
+  const parsed = items.map((value) => Number(value));
+  const invalid = parsed.find((value) => !Number.isInteger(value) || value < 1);
+  if (invalid !== undefined) {
+    throw new Error(`--${key} must contain positive integer PR numbers`);
+  }
+
+  return [...new Set(parsed)];
 }
 
 function optionalString(value: string | boolean | undefined): string | undefined {

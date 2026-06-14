@@ -4,6 +4,7 @@ export type CliOptions = {
   prSummaryLLM: string;
   evalJudgeLLM: string;
   output?: string;
+  prs?: number[];
   limit: number;
   concurrency: number;
   retries: number;
