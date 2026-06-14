@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tiny Eval</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-primary: #202020;
+      --background-primary-alt: #1a1a1a;
+      --background-secondary: #161616;
+      --background-secondary-alt: #0f0f0f;
+      --background-modifier-border: #363636;
+      --background-modifier-hover: #2a2a2a;
+      --text-normal: #dcddde;
+      --text-muted: #999999;
+      --text-faint: #666666;
+      --text-accent: #a48cf2;
+      --text-accent-hover: #b9a7ff;
+      --interactive-accent: #7f6df2;
+      --green: #70c27e;
+      --yellow: #d6b96d;
+      --red: #ff6b6b;
+      --line: #2b2b2b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--background-secondary-alt);
+      color: var(--text-normal);
+      font-family: "Iosevka Charon", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background-primary);
+    }
+
+    a {
+      color: var(--text-accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+    }
+
+    a:hover {
+      color: var(--text-accent-hover);
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 76px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: rgba(32, 32, 32, 0.96);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-normal);
+      font-size: 18px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      color: var(--text-accent);
+      background: var(--background-secondary);
+      font-size: 14px;
+    }
+
+    .menu-toggle {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .hamburger {
+      display: inline-grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      background: var(--background-secondary);
+      color: var(--text-normal);
+      cursor: pointer;
+    }
+
+    .hamburger span,
+    .hamburger span::before,
+    .hamburger span::after {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      content: "";
+    }
+
+    .hamburger span {
+      position: relative;
+    }
+
+    .hamburger span::before,
+    .hamburger span::after {
+      position: absolute;
+      left: 0;
+    }
+
+    .hamburger span::before {
+      top: -6px;
+    }
+
+    .hamburger span::after {
+      top: 6px;
+    }
+
+    .menu-sheet {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: min(320px, calc(100vw - 28px));
+      padding: 20px;
+      border-right: 1px solid var(--background-modifier-border);
+      background: var(--background-secondary);
+      transform: translateX(-100%);
+      transition: transform 160ms ease;
+      box-shadow: 24px 0 70px rgba(0, 0, 0, 0.28);
+    }
+
+    .menu-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+    }
+
+    .menu-toggle:checked ~ .menu-sheet {
+      transform: translateX(0);
+    }
+
+    .menu-toggle:checked ~ .menu-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      color: var(--text-normal);
+      font-weight: 700;
+    }
+
+    .sheet-close {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .sheet-links {
+      display: grid;
+      gap: 8px;
+      padding-top: 18px;
+    }
+
+    .sheet-links a {
+      display: block;
+      padding: 12px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      background: var(--background-primary-alt);
+      color: var(--text-normal);
+      text-decoration: none;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .nav a:hover {
+      color: var(--text-normal);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 42px;
+      align-items: center;
+      padding: 76px 0 54px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--text-normal);
+      font-size: 56px;
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      margin: 22px 0 0;
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1.7;
+      max-width: 62ch;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      background: var(--background-secondary);
+      color: var(--text-normal);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button.primary {
+      border-color: rgba(164, 140, 242, 0.58);
+      background: rgba(127, 109, 242, 0.18);
+      color: var(--text-accent-hover);
+    }
+
+    .button:hover {
+      border-color: var(--text-accent);
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .metric {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: rgba(22, 22, 22, 0.78);
+      padding: 14px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--text-normal);
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .preview {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+    }
+
+    .preview-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 42px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-primary-alt);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .window-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--text-faint);
+    }
+
+    .window-dots span:nth-child(1) {
+      background: var(--red);
+    }
+
+    .window-dots span:nth-child(2) {
+      background: var(--yellow);
+    }
+
+    .window-dots span:nth-child(3) {
+      background: var(--green);
+    }
+
+    .preview-title {
+      color: var(--text-muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .report-frame {
+      display: block;
+      width: 100%;
+      height: 430px;
+      border: 0;
+      background: var(--background-primary);
+    }
+
+    .section {
+      padding: 48px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--text-normal);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 52ch;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: rgba(22, 22, 22, 0.74);
+      padding: 18px;
+      min-height: 184px;
+    }
+
+    .card .label {
+      color: var(--text-accent);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      color: var(--text-normal);
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .code {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .agent-prompt {
+      max-height: 460px;
+      white-space: pre-wrap;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      color: var(--text-normal);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .comment {
+      color: var(--text-faint);
+    }
+
+    .accent {
+      color: var(--text-accent-hover);
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 30px 0 42px;
+      border-top: 1px solid var(--line);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 940px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 46px;
+      }
+
+      .preview {
+        order: -1;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        justify-content: center;
+        padding: 16px 0;
+      }
+
+      .nav {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .lede {
+        font-size: 16px;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .report-frame {
+        height: 360px;
+      }
+
+      .footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .preview {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <input class="menu-toggle" id="menu-toggle" type="checkbox" aria-label="Open navigation">
+    <label class="hamburger" for="menu-toggle" aria-label="Open navigation"><span></span></label>
+    <div class="brand-group">
+      <a class="brand" href="#">
+        <span class="mark">t</span>
+        <span>Tiny Eval</span>
+      </a>
+    </div>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#workflow">Workflow</a>
+      <a href="#agents">Agents</a>
+      <a href="#command">Command</a>
+      <a href="#report">Report</a>
+      <a href="https://github.com/vivekascoder/tiny-eval">GitHub</a>
+    </nav>
+    <aside class="menu-sheet" aria-label="Navigation menu">
+      <div class="sheet-head">
+        <span>Tiny Eval</span>
+        <label class="sheet-close" for="menu-toggle" aria-label="Close navigation">x</label>
+      </div>
+      <div class="sheet-links">
+        <a href="#workflow">Workflow</a>
+        <a href="#agents">Agents</a>
+        <a href="#command">Command</a>
+        <a href="#report">Report</a>
+        <a href="../evals/eval_run_2026-06-14T09-39-08-943Z/index.html">Demo report</a>
+        <a href="https://github.com/vivekascoder/tiny-eval">GitHub</a>
+      </div>
+    </aside>
+    <label class="menu-backdrop" for="menu-toggle" aria-label="Close navigation"></label>
+  </header>
+
+  <main class="shell">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <div class="eyebrow">Coding-agent evals from real pull requests</div>
+        <h1 id="hero-title">Tiny Eval</h1>
+        <p class="lede">
+          Build compact coding-agent benchmarks from historical GitHub PRs, run multiple models in parallel,
+          judge their diffs, and publish a static report that is easy to inspect.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="../evals/eval_run_2026-06-14T09-39-08-943Z/index.html">Open demo report</a>
+          <a class="button" href="#command">View command</a>
+        </div>
+        <div class="metrics" aria-label="Tiny Eval capabilities">
+          <div class="metric">
+            <strong>Parallel</strong>
+            <span>Bun workers run independent model and PR jobs concurrently.</span>
+          </div>
+          <div class="metric">
+            <strong>Grounded</strong>
+            <span>Each task starts from the commit immediately before a merged PR.</span>
+          </div>
+          <div class="metric">
+            <strong>Static</strong>
+            <span>Reports and diff artifacts are plain files under the eval run directory.</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="preview" id="report" aria-label="Demo report preview">
+        <div class="preview-bar">
+          <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="preview-title">eval_run_2026-06-14T09-39-08-943Z/index.html</div>
+        </div>
+        <iframe
+          class="report-frame"
+          title="Tiny Eval demo report"
+          src="../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"
+        ></iframe>
+      </aside>
+    </section>
+
+    <section class="section" id="agents">
+      <div class="section-head">
+        <h2>Agents</h2>
+        <p>The eval agent gets a fixed repository snapshot and a compact filesystem toolset.</p>
+      </div>
+      <div class="code">
+        <div class="code-header">
+          <span>agent prompt</span>
+          <span>read · bash · edit · write</span>
+        </div>
+        <pre class="agent-prompt"><code>You are an expert coding assistant. You help users with coding tasks by reading files, executing non-version-control commands, editing code, and writing new files.
+
+Available tools:
+- read: Read file contents
+- bash: Execute non-Git shell commands
+- edit: Make surgical edits to files
+- write: Create or overwrite files
+
+Guidelines:
+- You are working from a fixed repository snapshot prepared by the evaluator.
+- Do not use Git, Git metadata, Git history, commits, branches, tags, remotes, or diffs.
+- Use bash for ordinary project commands like ls, find, grep, rg, build, and test commands.
+- Use read to examine files before editing.
+- Use edit for precise changes. oldText must match exactly.
+- Use write only for new files or complete rewrites.
+- When summarizing your actions, output plain text directly. Do not use cat or bash to display what you did.
+- Be concise in your responses.
+- Show file paths clearly when working with files.
+
+Documentation:
+- Project documentation is usually at README.md.
+- Read it when users ask about features, configuration, or setup.
+
+Implement the requested change using the available filesystem tools. Make the smallest practical code change. Run a relevant validation command if the project makes that obvious.
+
+Repository: ${item.githubRepo}
+PR: #${item.prNumber}
+
+Task docs:
+${item.prDocs}</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="workflow">
+      <div class="section-head">
+        <h2>Small Surface, Useful Signal</h2>
+        <p>Designed for quick model comparisons where the artifact is the code diff, not just a final answer.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div class="label">01</div>
+          <h3>Prepare cases</h3>
+          <p>Fetch merged pull requests, summarize task context when needed, and validate the base commit can be checked out.</p>
+        </article>
+        <article class="card">
+          <div class="label">02</div>
+          <h3>Run agents</h3>
+          <p>Give each model an isolated repository snapshot and a narrow tool surface for reading, editing, writing, and testing.</p>
+        </article>
+        <article class="card">
+          <div class="label">03</div>
+          <h3>Judge diffs</h3>
+          <p>Compare the candidate diff against the original merged PR and rank models in a static HTML report.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="command">
+      <div class="section-head">
+        <h2>Run It</h2>
+        <p>One command produces `eval.json`, `index.html`, and diff files under `evals/`.</p>
+      </div>
+      <div class="code">
+        <div class="code-header">
+          <span>terminal</span>
+          <span>OPENROUTER_API_KEY required</span>
+        </div>
+        <pre><code>bun run tval run-eval \
+  --repo lodash/lodash \
+  --eval-llms <span class="accent">deepseek/deepseek-v4-pro,deepseek/deepseek-v4-flash</span> \
+  --pr-summary-llm <span class="accent">deepseek/deepseek-v4-flash</span> \
+  --eval-judge-llm <span class="accent">deepseek/deepseek-v4-pro</span> \
+  --limit 3 \
+  --concurrency 8 \
+  --retries 3</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <span>Tiny Eval</span>
+    <a href="../evals/eval_run_2026-06-14T09-39-08-943Z/index.html">Demo report</a>
+  </footer>
+</body>
+</html>
