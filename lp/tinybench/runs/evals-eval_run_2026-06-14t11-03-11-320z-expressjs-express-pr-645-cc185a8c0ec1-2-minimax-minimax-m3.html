@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>expressjs/express#645 minimax/minimax-m3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-primary: #202020;
+      --background-primary-alt: #1a1a1a;
+      --background-secondary: #161616;
+      --background-secondary-alt: #0f0f0f;
+      --background-modifier-border: #363636;
+      --background-modifier-hover: #2a2a2a;
+      --text-normal: #dcddde;
+      --text-muted: #999999;
+      --text-faint: #666666;
+      --text-accent: #a48cf2;
+      --text-accent-hover: #b9a7ff;
+      --interactive-accent: #7f6df2;
+      --green: #70c27e;
+      --yellow: #d6b96d;
+      --red: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    html {
+      background: var(--background-secondary-alt);
+      color: var(--text-normal);
+      font-family: "Iosevka Charon", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0;
+    }
+    body { margin: 0; min-height: 100vh; background: var(--background-primary); }
+    a { color: var(--text-accent); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    a:hover { color: var(--text-accent-hover); }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 20px; line-height: 1.1; font-weight: 700; overflow-wrap: anywhere; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: rgba(32, 32, 32, 0.96);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner, .shell { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 16px; }
+    .topbar-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .shell { padding-block: 28px 48px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--text-normal); text-decoration: none; }
+    .brand:hover { color: var(--text-normal); }
+    .nav { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      color: var(--text-accent);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+    .top {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--background-modifier-border);
+    }
+    .meta, .remark { color: var(--text-muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+    .page-title { font-size: 28px; line-height: 1.15; overflow-wrap: anywhere; }
+    .section-title { font-size: 18px; line-height: 1.2; margin: 8px 0 0; }
+    .meta-grid { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 999px;
+      background: var(--background-primary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .score {
+      display: inline-grid;
+      place-items: center;
+      min-width: 36px;
+      height: 30px;
+      border-radius: 6px;
+      color: var(--background-secondary-alt);
+      font-weight: 700;
+    }
+    .score.good { background: var(--green); }
+    .score.mid { background: var(--yellow); }
+    .score.bad { background: var(--red); }
+    .diff-stack { display: grid; gap: 18px; }
+    .diff-section {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      overflow: hidden;
+    }
+    .diff-section[hidden] { display: none; }
+    .diff-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-primary-alt);
+    }
+    .diff-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .collapse-toggle {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .collapse-toggle::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--text-muted);
+      transition: transform 140ms ease;
+    }
+    .collapse-toggle[aria-expanded="false"]::before {
+      transform: rotate(-90deg);
+    }
+    .diff-head h2 { font-size: 14px; }
+    .diff-content[hidden] { display: none; }
+    .split-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-secondary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .split-labels div {
+      padding: 8px 14px;
+      min-width: 0;
+    }
+    .split-labels div + div {
+      border-left: 1px solid var(--background-modifier-border);
+    }
+    .diff-body { overflow-x: auto; }
+    .diff-container {
+      display: block;
+      margin-bottom: 12px;
+    }
+    .diff-container:last-child {
+      margin-bottom: 0;
+    }
+    .empty { padding: 28px 14px; color: var(--text-muted); text-align: center; line-height: 1.45; }
+    .raw-diff {
+      margin: 0;
+      padding: 14px;
+      overflow-x: auto;
+      color: var(--text-normal);
+      background: var(--background-secondary);
+      line-height: 1.4;
+      white-space: pre;
+    }
+    .footer {
+      padding-top: 22px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .topbar-inner, .shell { padding-inline: 10px; }
+      .diff-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../index.html">
+        <div class="mark">tb</div>
+        <div>
+          <h1>TinyBench</h1>
+        </div>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="../../index.html">Tiny Eval</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <header class="top">
+      <h2 class="page-title">expressjs/express#645</h2>
+      <div class="meta-grid">
+        <span class="pill">minimax/minimax-m3</span>
+        <span class="pill">summary deepseek/deepseek-v4-flash</span>
+        <span class="pill">judge deepseek/deepseek-v4-pro</span>
+        <span class="score bad">1</span>
+      </div>
+      
+      <h2 id="pr-doc-prompt" class="section-title">PR doc prompt</h2>
+      <p class="meta"># Incorrect reference to template in a comment
+
+The comment here refers to using &quot;jade&quot; for layouts, but you&#39;re using &quot;ejs&quot; instead.</p>
+      
+      
+      <h2 id="agent-remarks" class="section-title">Agent remarks</h2>
+      <p class="remark">The candidate makes no changes, failing to apply the comment correction (jade -&gt; ejs). The original PR fixed the incorrect template engine reference in the comment; the candidate does not implement this behavior.</p>
+      
+    </header>
+
+    <section class="diff-stack">
+      <article id="original-section" class="diff-section">
+        <div class="diff-head">
+          <div class="diff-title">
+            <button class="collapse-toggle" type="button" data-collapse-target="original-content" aria-expanded="true" aria-label="Toggle Original PR Diff"></button>
+            <h2>Original PR Diff</h2>
+          </div>
+          <div class="meta">rendered with @pierre/diffs</div>
+        </div>
+        <div id="original-content" class="diff-content">
+          <div class="split-labels" aria-hidden="true">
+            <div>Original</div>
+            <div>Changes</div>
+          </div>
+          <div id="original-diff" class="diff-body"></div>
+        </div>
+      </article>
+
+      <article id="agent-section" class="diff-section">
+        <div class="diff-head">
+          <div class="diff-title">
+            <button class="collapse-toggle" type="button" data-collapse-target="agent-content" aria-expanded="true" aria-label="Toggle Eval agent generated diff"></button>
+            <h2>Eval agent generated diff</h2>
+          </div>
+          <div class="meta">eval LLM generated diff</div>
+        </div>
+        <div id="agent-content" class="diff-content">
+          <div class="split-labels" aria-hidden="true">
+            <div>Original</div>
+            <div>Changes</div>
+          </div>
+          <div id="candidate-diff" class="diff-body"></div>
+        </div>
+      </article>
+    </section>
+    <footer class="footer">
+      <a href="https://vivek.ink">vivek.ink</a>
+    </footer>
+  </main>
+  <script id="diff-payload" type="application/json">{"original":"diff --git a/examples/layout-control/app.js b/examples/layout-control/app.js\nindex 16a844adbec..cd269f26050 100644\n--- a/examples/layout-control/app.js\n+++ b/examples/layout-control/app.js\n@@ -1,4 +1,3 @@\n-\n // Expose modules in ./support for demo purposes\n require.paths.unshift(__dirname + '/../../support');\n \n@@ -15,7 +14,7 @@ app.set('views', __dirname + '/views');\n // set default layout, usually \"layout\"\n app.set('view options', { layout: 'layouts/default' });\n \n-// Set our default template engine to \"jade\"\n+// Set our default template engine to \"ejs\"\n // which prevents the need for extensions\n // (although you can still mix and match)\n app.set('view engine', 'ejs');\n","candidate":""}</script>
+  <script>
+    for (const button of document.querySelectorAll("[data-collapse-target]")) {
+      button.addEventListener("click", () => {
+        const target = document.getElementById(button.dataset.collapseTarget);
+        if (!target) return;
+        const nextExpanded = target.hidden;
+        target.hidden = !nextExpanded;
+        button.setAttribute("aria-expanded", String(nextExpanded));
+      });
+    }
+  </script>
+  <script type="module" src="../assets/tinybench-client.js"></script>
+</body>
+</html>

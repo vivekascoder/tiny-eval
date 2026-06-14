@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>lodash/lodash#9 deepseek/deepseek-v4-flash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-primary: #202020;
+      --background-primary-alt: #1a1a1a;
+      --background-secondary: #161616;
+      --background-secondary-alt: #0f0f0f;
+      --background-modifier-border: #363636;
+      --background-modifier-hover: #2a2a2a;
+      --text-normal: #dcddde;
+      --text-muted: #999999;
+      --text-faint: #666666;
+      --text-accent: #a48cf2;
+      --text-accent-hover: #b9a7ff;
+      --interactive-accent: #7f6df2;
+      --green: #70c27e;
+      --yellow: #d6b96d;
+      --red: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    html {
+      background: var(--background-secondary-alt);
+      color: var(--text-normal);
+      font-family: "Iosevka Charon", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0;
+    }
+    body { margin: 0; min-height: 100vh; background: var(--background-primary); }
+    a { color: var(--text-accent); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    a:hover { color: var(--text-accent-hover); }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 20px; line-height: 1.1; font-weight: 700; overflow-wrap: anywhere; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: rgba(32, 32, 32, 0.96);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner, .shell { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 16px; }
+    .topbar-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .shell { padding-block: 28px 48px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--text-normal); text-decoration: none; }
+    .brand:hover { color: var(--text-normal); }
+    .nav { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      color: var(--text-accent);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+    .top {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--background-modifier-border);
+    }
+    .meta, .remark { color: var(--text-muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+    .page-title { font-size: 28px; line-height: 1.15; overflow-wrap: anywhere; }
+    .section-title { font-size: 18px; line-height: 1.2; margin: 8px 0 0; }
+    .meta-grid { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 999px;
+      background: var(--background-primary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .score {
+      display: inline-grid;
+      place-items: center;
+      min-width: 36px;
+      height: 30px;
+      border-radius: 6px;
+      color: var(--background-secondary-alt);
+      font-weight: 700;
+    }
+    .score.good { background: var(--green); }
+    .score.mid { background: var(--yellow); }
+    .score.bad { background: var(--red); }
+    .diff-stack { display: grid; gap: 18px; }
+    .diff-section {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      overflow: hidden;
+    }
+    .diff-section[hidden] { display: none; }
+    .diff-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-primary-alt);
+    }
+    .diff-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .collapse-toggle {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .collapse-toggle::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--text-muted);
+      transition: transform 140ms ease;
+    }
+    .collapse-toggle[aria-expanded="false"]::before {
+      transform: rotate(-90deg);
+    }
+    .diff-head h2 { font-size: 14px; }
+    .diff-content[hidden] { display: none; }
+    .split-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-secondary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .split-labels div {
+      padding: 8px 14px;
+      min-width: 0;
+    }
+    .split-labels div + div {
+      border-left: 1px solid var(--background-modifier-border);
+    }
+    .diff-body { overflow-x: auto; }
+    .diff-container {
+      display: block;
+      margin-bottom: 12px;
+    }
+    .diff-container:last-child {
+      margin-bottom: 0;
+    }
+    .empty { padding: 28px 14px; color: var(--text-muted); text-align: center; line-height: 1.45; }
+    .raw-diff {
+      margin: 0;
+      padding: 14px;
+      overflow-x: auto;
+      color: var(--text-normal);
+      background: var(--background-secondary);
+      line-height: 1.4;
+      white-space: pre;
+    }
+    .footer {
+      padding-top: 22px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .topbar-inner, .shell { padding-inline: 10px; }
+      .diff-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../index.html">
+        <div class="mark">tb</div>
+        <div>
+          <h1>TinyBench</h1>
+        </div>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="../../index.html">Tiny Eval</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <header class="top">
+      <h2 class="page-title">lodash/lodash#9</h2>
+      <div class="meta-grid">
+        <span class="pill">deepseek/deepseek-v4-flash</span>
+        <span class="pill">summary deepseek/deepseek-v4-flash</span>
+        <span class="pill">judge deepseek/deepseek-v4-pro</span>
+        <span class="score bad">1</span>
+      </div>
+      
+      <h2 id="pr-doc-prompt" class="section-title">PR doc prompt</h2>
+      <p class="meta"># Add Node.js benchmark. Fixes #8
+
+![screenshot](https://img.skitch.com/20120515-gks14k4csutkk3ct3t886ubtg9.png)</p>
+      
+      
+      <h2 id="agent-remarks" class="section-title">Agent remarks</h2>
+      <p class="remark">The candidate diff contains no changes, so it fails to add the benchmark script (benchmark/test.js) or update package.json with the devDependency. It does not implement the intended functionality at all.</p>
+      
+    </header>
+
+    <section class="diff-stack">
+      <article id="original-section" class="diff-section">
+        <div class="diff-head">
+          <div class="diff-title">
+            <button class="collapse-toggle" type="button" data-collapse-target="original-content" aria-expanded="true" aria-label="Toggle Original PR Diff"></button>
+            <h2>Original PR Diff</h2>
+          </div>
+          <div class="meta">rendered with @pierre/diffs</div>
+        </div>
+        <div id="original-content" class="diff-content">
+          <div class="split-labels" aria-hidden="true">
+            <div>Original</div>
+            <div>Changes</div>
+          </div>
+          <div id="original-diff" class="diff-body"></div>
+        </div>
+      </article>
+
+      <article id="agent-section" class="diff-section">
+        <div class="diff-head">
+          <div class="diff-title">
+            <button class="collapse-toggle" type="button" data-collapse-target="agent-content" aria-expanded="true" aria-label="Toggle Eval agent generated diff"></button>
+            <h2>Eval agent generated diff</h2>
+          </div>
+          <div class="meta">eval LLM generated diff</div>
+        </div>
+        <div id="agent-content" class="diff-content">
+          <div class="split-labels" aria-hidden="true">
+            <div>Original</div>
+            <div>Changes</div>
+          </div>
+          <div id="candidate-diff" class="diff-body"></div>
+        </div>
+      </article>
+    </section>
+    <footer class="footer">
+      <a href="https://vivek.ink">vivek.ink</a>
+    </footer>
+  </main>
+  <script id="diff-payload" type="application/json">{"original":"diff --git a/benchmark/test.js b/benchmark/test.js\nnew file mode 100644\nindex 0000000000..99dc2eeed9\n--- /dev/null\n+++ b/benchmark/test.js\n@@ -0,0 +1,150 @@\n+/*global _, lodash */\n+var Benchmark = require('../vendor/benchmark.js');\n+var colors = require('colors');\n+var count = {\n+\tunderscore: 0,\n+\tlodash: 0\n+};\n+\n+// Workaround node.js scoping issue\n+global.lodash = require('../');\n+global._ = require('../vendor/underscore');\n+\n+\n+Benchmark.options.setup = function() {\n+\tvar objects, randomized;\n+\tvar lodash = global.lodash;\n+\tvar _ = global._;\n+\tvar numbers = [];\n+\tvar object = {};\n+\tvar i = 0;\n+\n+\tfor ( ; i < 20; i++ ) {\n+\t\tnumbers[ i ] = i;\n+\t\tobject[ 'key' + i ] = i;\n+\t}\n+\n+\tobjects = _.map(numbers, function( n ) {\n+\t\treturn { 'num': n };\n+\t});\n+\trandomized = _.sortBy(numbers, function() {\n+\t\treturn Math.random();\n+\t});\n+};\n+\n+function start() {\n+\tconsole.log( '\\n' + this.name.bold );\n+}\n+\n+function cycle( e ) {\n+\tconsole.log( e.target.toString().grey );\n+}\n+\n+function complete() {\n+\tconsole.log( this.filter('fastest').pluck('name').toString().green + ' fastest' );\n+\tcount.underscore += this[0].count;\n+\tcount.lodash += this[1].count;\n+}\n+\n+\n+/* each */\n+Benchmark.Suite('each')\n+.add('Underscore', function() {\n+\tvar timesTwo = [];\n+\t_.each( numbers, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.add('Lodash', function() {\n+\tvar timesTwo = [];\n+\tlodash.each( numbers, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* each object */\n+Benchmark.Suite('each object')\n+.add('Underscore', function() {\n+\tvar timesTwo = [];\n+\t_.each( object, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.add('Lodash', function() {\n+\tvar timesTwo = [];\n+\tlodash.each( object, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* keys */\n+Benchmark.Suite('keys')\n+.add('Underscore', function() {\n+\t_.keys( object );\n+})\n+.add('Lodash', function() {\n+\tlodash.keys( object );\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* map */\n+Benchmark.Suite('map')\n+.add('Underscore', function() {\n+\t_.map( objects, function( obj ) {\n+\t\treturn obj.num;\n+\t});\n+})\n+.add('Lodash', function() {\n+\tlodash.map( objects, function( obj ) {\n+\t\treturn obj.num;\n+\t});\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* pluck */\n+Benchmark.Suite('pluck')\n+.add('Underscore', function() {\n+\t_.pluck( objects, 'num' );\n+})\n+.add('Lodash', function() {\n+\tlodash.pluck( objects, 'num' );\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* values */\n+Benchmark.Suite('values')\n+.add('Underscore', function() {\n+\t_.values( objects );\n+})\n+.add('Lodash', function() {\n+\tlodash.values( objects );\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+console.log( ('\\nLodash is ' + ( count.lodash / count.underscore ).toFixed(2) + 'x faster than Underscore' ).green );\n\\ No newline at end of file\ndiff --git a/package.json b/package.json\nindex 42768ad24b..2cf201271e 100644\n--- a/package.json\n+++ b/package.json\n@@ -38,5 +38,8 @@\n   \"directories\": {\n     \"doc\": \"./doc\",\n     \"test\": \"./test\"\n+  },\n+  \"devDependencies\": {\n+    \"colors\": \"~0.6.0\"\n   }\n }\n\\ No newline at end of file\n","candidate":""}</script>
+  <script>
+    for (const button of document.querySelectorAll("[data-collapse-target]")) {
+      button.addEventListener("click", () => {
+        const target = document.getElementById(button.dataset.collapseTarget);
+        if (!target) return;
+        const nextExpanded = target.hidden;
+        target.hidden = !nextExpanded;
+        button.setAttribute("aria-expanded", String(nextExpanded));
+      });
+    }
+  </script>
+  <script type="module" src="../assets/tinybench-client.js"></script>
+</body>
+</html>

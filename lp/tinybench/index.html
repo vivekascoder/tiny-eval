@@ -28,41 +28,18 @@
     }
 
     * { box-sizing: border-box; }
-
     html {
       background: var(--background-secondary-alt);
       color: var(--text-normal);
       font-family: "Iosevka Charon", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       letter-spacing: 0;
     }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--background-primary);
-    }
-
-    a {
-      color: var(--text-accent);
-      text-decoration-thickness: 1px;
-      text-underline-offset: 4px;
-    }
-
+    body { margin: 0; min-height: 100vh; background: var(--background-primary); }
+    a { color: var(--text-accent); text-decoration-thickness: 1px; text-underline-offset: 4px; }
     a:hover { color: var(--text-accent-hover); }
-
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    .shell {
-      width: 100%;
-      max-width: 60rem;
-      margin-inline: auto;
-      padding: 28px 16px 48px;
-    }
-
+    button, input, select { font: inherit; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 20px; line-height: 1.1; font-weight: 700; overflow-wrap: anywhere; }
     .topbar {
       position: sticky;
       top: 0;
@@ -71,26 +48,17 @@
       background: rgba(32, 32, 32, 0.96);
       backdrop-filter: blur(14px);
     }
-
+    .topbar-inner, .shell { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 16px; }
     .topbar-inner {
-      width: 100%;
-      max-width: 60rem;
       min-height: 68px;
-      margin-inline: auto;
-      padding-inline: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
+    .shell { padding-block: 28px 48px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .nav { display: flex; align-items: center; gap: 14px; font-size: 13px; }
     .mark {
       display: grid;
       place-items: center;
@@ -102,35 +70,8 @@
       color: var(--text-accent);
       font-weight: 700;
     }
-
-    h1,
-    h2,
-    h3,
-    p {
-      margin: 0;
-    }
-
-    h1 {
-      font-size: 20px;
-      line-height: 1.1;
-      font-weight: 700;
-      overflow-wrap: anywhere;
-    }
-
-    .subtle {
-      color: var(--text-muted);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
+    .subtle { color: var(--text-muted); font-size: 13px; line-height: 1.4; }
+    .toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
     .control {
       height: 36px;
       border: 1px solid var(--background-modifier-border);
@@ -139,45 +80,10 @@
       color: var(--text-normal);
       outline: none;
     }
-
-    .control:hover {
-      border-color: var(--interactive-accent);
-    }
-
-    .search {
-      width: min(300px, 52vw);
-      padding: 0 10px;
-    }
-
-    .select {
-      padding: 0 30px 0 10px;
-    }
-
-    .button {
-      display: inline-grid;
-      place-items: center;
-      height: 36px;
-      padding: 0 12px;
-      border: 1px solid var(--background-modifier-border);
-      border-radius: 7px;
-      background: var(--background-secondary);
-      color: var(--text-normal);
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .button:hover {
-      border-color: var(--interactive-accent);
-      background: var(--background-modifier-hover);
-      color: var(--text-normal);
-    }
-
-    .layout {
-      display: grid;
-      gap: 16px;
-      margin-top: 18px;
-    }
-
+    .control:hover { border-color: var(--interactive-accent); }
+    .search { width: min(320px, 52vw); padding: 0 10px; }
+    .select { padding: 0 30px 0 10px; }
+    .layout { display: grid; gap: 16px; }
     .panel {
       border: 1px solid var(--background-modifier-border);
       border-radius: 8px;
@@ -185,7 +91,6 @@
       min-width: 0;
       overflow: hidden;
     }
-
     .panel-head {
       display: flex;
       align-items: center;
@@ -195,45 +100,18 @@
       border-bottom: 1px solid var(--background-modifier-border);
       background: var(--background-primary-alt);
     }
-
-    .panel-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-normal);
-      overflow-wrap: anywhere;
-    }
-
-    .bench-list {
-      display: grid;
-    }
-
-    .case-row {
-      padding: 14px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .case-row:last-child {
-      border-bottom: 0;
-    }
-
-    .case-main {
-      min-width: 0;
-    }
-
-    .case-title {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-
-    .repo {
-      font-size: 16px;
-      font-weight: 700;
-      overflow-wrap: anywhere;
-    }
-
+    .runs-head { align-items: flex-start; flex-wrap: wrap; }
+    .panel-title { font-size: 14px; font-weight: 700; color: var(--text-normal); overflow-wrap: anywhere; }
+    .leaderboard, .run-list { display: grid; }
+    .leader, .run-row { padding: 14px; border-bottom: 1px solid var(--line); }
+    .leader:last-child, .run-row:last-child { border-bottom: 0; }
+    .leader { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+    .rank { color: var(--text-faint); font-size: 13px; }
+    .bar-track { height: 6px; margin-top: 7px; border-radius: 999px; background: var(--background-primary); overflow: hidden; }
+    .bar { height: 100%; border-radius: inherit; background: var(--interactive-accent); }
+    .run-title { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+    .repo, .model { color: var(--text-normal); font-weight: 700; overflow-wrap: anywhere; }
+    .repo { font-size: 16px; }
     .pill {
       display: inline-flex;
       align-items: center;
@@ -248,51 +126,8 @@
       line-height: 1.3;
       overflow-wrap: anywhere;
     }
-
-    .docs {
-      color: var(--text-muted);
-      line-height: 1.45;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-      font-size: 13px;
-    }
-
-    .eval-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .eval {
-      border: 1px solid var(--background-modifier-border);
-      border-radius: 7px;
-      background: var(--background-primary-alt);
-      padding: 10px;
-      min-width: 0;
-    }
-
-    .eval-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .model {
-      color: var(--text-normal);
-      font-weight: 600;
-      overflow-wrap: anywhere;
-    }
-
+    .docs, .remark { color: var(--text-muted); line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 13px; }
     .score {
       display: inline-grid;
       place-items: center;
@@ -303,109 +138,26 @@
       font-weight: 700;
       flex: 0 0 auto;
     }
-
     .score.good { background: var(--green); }
     .score.mid { background: var(--yellow); }
     .score.bad { background: var(--red); }
-
-    .eval-meta {
-      display: grid;
-      gap: 4px;
+    .run-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .empty { padding: 28px 14px; color: var(--text-muted); text-align: center; line-height: 1.45; }
+    .footer {
+      padding-top: 22px;
       color: var(--text-muted);
-      font-size: 12px;
-      overflow-wrap: anywhere;
-    }
-
-    .case-score {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-top: 10px;
-      color: var(--text-muted);
-    }
-
-    .case-score strong {
-      font-size: 16px;
-      color: var(--green);
-    }
-
-    .leaderboard {
-      display: grid;
-    }
-
-    .leader {
-      display: grid;
-      grid-template-columns: 26px minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .leader:last-child {
-      border-bottom: 0;
-    }
-
-    .rank {
-      color: var(--text-faint);
       font-size: 13px;
-    }
-
-    .bar-track {
-      height: 6px;
-      margin-top: 7px;
-      border-radius: 999px;
-      background: var(--background-primary);
-      overflow: hidden;
-    }
-
-    .bar {
-      height: 100%;
-      border-radius: inherit;
-      background: var(--interactive-accent);
-    }
-
-    .empty {
-      padding: 28px 14px;
-      color: var(--text-muted);
       text-align: center;
-      line-height: 1.45;
     }
 
     @media (max-width: 920px) {
-      .topbar-inner {
-        align-items: stretch;
-        flex-direction: column;
-        padding: 14px 0;
-      }
-
-      .toolbar {
-        justify-content: flex-start;
-      }
-
-      .case-score {
-        text-align: left;
-      }
+      .topbar-inner { align-items: stretch; flex-direction: column; padding-block: 14px; }
+      .toolbar { justify-content: flex-start; }
     }
-
     @media (max-width: 620px) {
-      .shell {
-        padding-inline: 10px;
-      }
-
-      .topbar-inner {
-        padding-inline: 10px;
-      }
-
-      .search,
-      .select,
-      .button {
-        width: 100%;
-      }
-
-      .toolbar {
-        width: 100%;
-      }
+      .topbar-inner, .shell { padding-inline: 10px; }
+      .search, .select { width: 100%; }
+      .toolbar { width: 100%; }
     }
   </style>
 </head>
@@ -416,18 +168,11 @@
         <div class="mark">tb</div>
         <div>
           <h1>TinyBench</h1>
-          <div class="subtle">tinyBench.json model ratings</div>
         </div>
       </div>
-      <div class="toolbar">
-        <input id="search" class="control search" type="search" placeholder="Filter repo, PR, model">
-        <select id="sort" class="control select" aria-label="Sort cases">
-          <option value="rating-desc">Best average</option>
-          <option value="rating-asc">Worst average</option>
-          <option value="repo">Repository</option>
-          <option value="evals-desc">Most evals</option>
-        </select>
-      </div>
+      <nav class="nav" aria-label="Primary">
+        <a href="../index.html">Tiny Eval</a>
+      </nav>
     </div>
   </header>
 
@@ -442,84 +187,80 @@
       </aside>
 
       <div class="panel">
-        <div class="panel-head">
-          <h2 class="panel-title">Cases</h2>
-          <div id="visibleCount" class="subtle">0 shown</div>
+        <div class="panel-head runs-head">
+          <div>
+            <h2 class="panel-title">Runs</h2>
+            <div id="runCount" class="subtle">0 runs</div>
+          </div>
+          <div class="toolbar">
+            <input id="search" class="control search" type="search" placeholder="Filter runs">
+            <select id="modelFilter" class="control select" aria-label="Filter by model">
+              <option value="">All models</option>
+            </select>
+            <select id="ratingFilter" class="control select" aria-label="Filter by rating">
+              <option value="">All ratings</option>
+              <option value="good">8-10</option>
+              <option value="mid">5-7</option>
+              <option value="bad">0-4</option>
+            </select>
+            <select id="sort" class="control select" aria-label="Sort runs">
+              <option value="rating-desc">Best rating</option>
+              <option value="rating-asc">Worst rating</option>
+              <option value="repo">Repository</option>
+              <option value="model">Model</option>
+            </select>
+          </div>
         </div>
-        <div id="cases" class="bench-list"></div>
+        <div id="runs" class="run-list"></div>
       </div>
     </section>
+    <footer class="footer">
+      <a href="https://vivek.ink">vivek.ink</a>
+    </footer>
   </main>
 
   <script>
-    const state = {
-      data: [],
-      query: "",
-      sort: "rating-desc",
-    };
-
+    const dashboard = {"generatedAt":"2026-06-14T15:23:08.388Z","runs":[{"repo":"expressjs/express","prNumber":645,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":10,"judgeNotes":"The candidate correctly changes the comment from 'jade' to 'ejs', matching the described fix. It omits the unrelated blank line removal that was part of the original PR, but that does not affect functionality or compilation.","detailHref":"./runs/evals-eval_run_2026-06-14t11-03-11-320z-expressjs-express-pr-645-cc185a8c0ec1-1-deepseek-deepseek-v4-pro.html","sourceRunHref":"../../evals/eval_run_2026-06-14T11-03-11-320Z/index.html"},{"repo":"expressjs/express","prNumber":645,"evalLLM":"minimax/minimax-m3","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate makes no changes, failing to apply the comment correction (jade -> ejs). The original PR fixed the incorrect template engine reference in the comment; the candidate does not implement this behavior.","detailHref":"./runs/evals-eval_run_2026-06-14t11-03-11-320z-expressjs-express-pr-645-cc185a8c0ec1-2-minimax-minimax-m3.html","sourceRunHref":"../../evals/eval_run_2026-06-14T11-03-11-320Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":10,"judgeNotes":"The candidate implementation is identical to the original merged PR. It faithfully replaces the Makefile with a JavaScript-based build system, implementing the same compilation steps (Closure Compiler and UglifyJS) with pre- and post-processing. It is likely to compile and work correctly.","detailHref":"./runs/evals-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-1-0ad7ab8c21e4-1-deepseek-deepseek-v4-pro.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":10,"judgeNotes":"The candidate implementation is identical to the original merged PR. It faithfully replaces the Makefile with a JavaScript-based build system, implementing the same compilation steps (Closure Compiler and UglifyJS) with pre- and post-processing. It is likely to compile and work correctly.","detailHref":"./runs/lp-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-1-0ad7ab8c21e4-1-deepseek-deepseek-v4-pro.html","sourceRunHref":"../eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"deepseek/deepseek-v4-flash","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff only deletes the Makefile but does not include the new build.js file or the updated build/pre-compile.js and build/post-compile.js modules. Without those essential parts, the build system is completely missing and cannot function. The change fails to implement the intended replacement and would not compile.","detailHref":"./runs/evals-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-1-0ad7ab8c21e4-4-deepseek-deepseek-v4-flash.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"deepseek/deepseek-v4-flash","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff only deletes the Makefile but does not include the new build.js file or the updated build/pre-compile.js and build/post-compile.js modules. Without those essential parts, the build system is completely missing and cannot function. The change fails to implement the intended replacement and would not compile.","detailHref":"./runs/lp-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-1-0ad7ab8c21e4-4-deepseek-deepseek-v4-flash.html","sourceRunHref":"../eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff only deletes the Makefile and adds a package.json script to run 'node build.js', but it does not include the actual build script (build.js) or the necessary changes to pre-compile.js and post-compile.js to export their functions. Without these, the build system is non-functional and the behavior is not implemented.","detailHref":"./runs/evals-eval_run_2026-06-14t09-49-59-593z-lodash-lodash-pr-1-0ad7ab8c21e4-1-deepseek-deepseek-v4-pro.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-49-59-593Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"Candidate only deletes the Makefile without adding the new JavaScript-based build system (build.js, updated pre/post-compile.js) as required by the original PR. The build system would be completely non-functional.","detailHref":"./runs/evals-eval_run_2026-06-14t10-57-53-792z-lodash-lodash-pr-1-0ad7ab8c21e4-1-deepseek-deepseek-v4-pro.html","sourceRunHref":"../../evals/eval_run_2026-06-14T10-57-53-792Z/index.html"},{"repo":"lodash/lodash","prNumber":1,"evalLLM":"minimax/minimax-m3","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate implementation contains no changes. It does not delete the Makefile, create build.js, or update pre-compile.js and post-compile.js as required. The replacement of the Makefile with a JavaScript-based build system is not implemented, and the code would not compile or exhibit the intended new behavior.","detailHref":"./runs/evals-eval_run_2026-06-14t10-57-53-792z-lodash-lodash-pr-1-0ad7ab8c21e4-2-minimax-minimax-m3.html","sourceRunHref":"../../evals/eval_run_2026-06-14T10-57-53-792Z/index.html"},{"repo":"lodash/lodash","prNumber":2,"evalLLM":"deepseek/deepseek-v4-flash","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":5,"judgeNotes":"The candidate implements the core idea of saving the smallest minified file as lodash.min.js but deviates from the original PR in several ways: 1) It compares uncompressed file sizes instead of gzipped sizes, which changes the selection criterion. 2) It does not refactor the build script to use a generic invoke function, leaving the original compile/gzip/uglify helpers unchanged. 3) The counter-based completion detection is fragile (e.g., if an error occurs before incrementing). The code is likely to compile, but the behavior is not fully equivalent to the merged PR.","detailHref":"./runs/evals-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-2-d6757a085ef0-5-deepseek-deepseek-v4-flash.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":2,"evalLLM":"deepseek/deepseek-v4-flash","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":5,"judgeNotes":"The candidate implements the core idea of saving the smallest minified file as lodash.min.js but deviates from the original PR in several ways: 1) It compares uncompressed file sizes instead of gzipped sizes, which changes the selection criterion. 2) It does not refactor the build script to use a generic invoke function, leaving the original compile/gzip/uglify helpers unchanged. 3) The counter-based completion detection is fragile (e.g., if an error occurs before incrementing). The code is likely to compile, but the behavior is not fully equivalent to the merged PR.","detailHref":"./runs/lp-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-2-d6757a085ef0-5-deepseek-deepseek-v4-flash.html","sourceRunHref":"../eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":2,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":3,"judgeNotes":"The candidate adds code to save the smallest minified distribution as lodash.min.js, but it compares the uncompressed source lengths (compilerResult.length vs uglifyResult.length) instead of the gzipped sizes used by the original PR. This changes the selection criterion and will produce different (potentially less optimal) output, thus failing to replicate the intended behavior. The code would compile and run, but the functionality is not correctly implemented relative to the merged PR.","detailHref":"./runs/evals-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-2-d6757a085ef0-2-deepseek-deepseek-v4-pro.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":2,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":3,"judgeNotes":"The candidate adds code to save the smallest minified distribution as lodash.min.js, but it compares the uncompressed source lengths (compilerResult.length vs uglifyResult.length) instead of the gzipped sizes used by the original PR. This changes the selection criterion and will produce different (potentially less optimal) output, thus failing to replicate the intended behavior. The code would compile and run, but the functionality is not correctly implemented relative to the merged PR.","detailHref":"./runs/lp-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-2-d6757a085ef0-2-deepseek-deepseek-v4-pro.html","sourceRunHref":"../eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":9,"evalLLM":"deepseek/deepseek-v4-flash","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff contains no changes, so it fails to add the benchmark script (benchmark/test.js) or update package.json with the devDependency. It does not implement the intended functionality at all.","detailHref":"./runs/evals-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-9-61ca57234313-6-deepseek-deepseek-v4-flash.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":9,"evalLLM":"deepseek/deepseek-v4-flash","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff contains no changes, so it fails to add the benchmark script (benchmark/test.js) or update package.json with the devDependency. It does not implement the intended functionality at all.","detailHref":"./runs/lp-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-9-61ca57234313-6-deepseek-deepseek-v4-flash.html","sourceRunHref":"../eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":9,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff is empty, meaning it implements none of the original PR's changes. The original PR added a new Node.js benchmark file and updated package.json with a devDependency on 'colors'. The candidate fails to replicate any of this functionality.","detailHref":"./runs/evals-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-9-61ca57234313-3-deepseek-deepseek-v4-pro.html","sourceRunHref":"../../evals/eval_run_2026-06-14T09-39-08-943Z/index.html"},{"repo":"lodash/lodash","prNumber":9,"evalLLM":"deepseek/deepseek-v4-pro","prSummaryLLM":"deepseek/deepseek-v4-flash","evalJudgeLLM":"deepseek/deepseek-v4-pro","rating":1,"judgeNotes":"The candidate diff is empty, meaning it implements none of the original PR's changes. The original PR added a new Node.js benchmark file and updated package.json with a devDependency on 'colors'. The candidate fails to replicate any of this functionality.","detailHref":"./runs/lp-eval_run_2026-06-14t09-39-08-943z-lodash-lodash-pr-9-61ca57234313-3-deepseek-deepseek-v4-pro.html","sourceRunHref":"../eval_run_2026-06-14T09-39-08-943Z/index.html"}],"leaderboard":[{"model":"deepseek/deepseek-v4-pro","average":4.444444444444445,"count":9},{"model":"deepseek/deepseek-v4-flash","average":2.3333333333333335,"count":6},{"model":"minimax/minimax-m3","average":1,"count":2}]};
+    const state = { query: "", model: "", rating: "", sort: "rating-desc" };
     const els = {
       search: document.querySelector("#search"),
+      modelFilter: document.querySelector("#modelFilter"),
+      ratingFilter: document.querySelector("#ratingFilter"),
       sort: document.querySelector("#sort"),
-      visibleCount: document.querySelector("#visibleCount"),
-      cases: document.querySelector("#cases"),
+      runCount: document.querySelector("#runCount"),
+      runs: document.querySelector("#runs"),
       leaderboard: document.querySelector("#leaderboard"),
     };
 
-    init();
-
-    async function init() {
-      els.search.addEventListener("input", () => {
-        state.query = els.search.value.trim().toLowerCase();
-        render();
-      });
-      els.sort.addEventListener("change", () => {
-        state.sort = els.sort.value;
-        render();
-      });
-
-      try {
-        const response = await fetch("../tinyBench.json", { cache: "no-store" });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        setData(await response.json(), "../tinyBench.json");
-      } catch (error) {
-        setData([], null);
-      }
-    }
-
-    function setData(data, source) {
-      state.data = Array.isArray(data) ? data : [];
+    populateModelFilter();
+    els.search.addEventListener("input", () => {
+      state.query = els.search.value.trim().toLowerCase();
       render();
-    }
+    });
+    els.modelFilter.addEventListener("change", () => {
+      state.model = els.modelFilter.value;
+      render();
+    });
+    els.ratingFilter.addEventListener("change", () => {
+      state.rating = els.ratingFilter.value;
+      render();
+    });
+    els.sort.addEventListener("change", () => {
+      state.sort = els.sort.value;
+      render();
+    });
+    render();
 
     function render() {
-      const allEvals = state.data.flatMap((item) => normalizeEvals(item));
-      renderLeaderboard(allEvals);
-      renderCases();
+      renderLeaderboard(dashboard.leaderboard || []);
+      renderRuns();
     }
 
-    function renderLeaderboard(evals) {
-      const grouped = new Map();
-      for (const entry of evals) {
-        const current = grouped.get(entry.evalLLM) || { total: 0, count: 0 };
-        current.total += entry.rating;
-        current.count += 1;
-        grouped.set(entry.evalLLM, current);
-      }
-
-      const rows = Array.from(grouped, ([model, stats]) => ({
-        model,
-        average: stats.total / Math.max(stats.count, 1),
-        count: stats.count,
-      })).sort((left, right) => right.average - left.average || left.model.localeCompare(right.model));
-
+    function renderLeaderboard(rows) {
       if (!rows.length) {
         els.leaderboard.innerHTML = `<div class="empty">No evals loaded.</div>`;
         return;
       }
-
       els.leaderboard.innerHTML = rows.map((row, index) => `
         <div class="leader">
           <div class="rank">${index + 1}</div>
@@ -528,124 +269,71 @@
             <div class="bar-track"><div class="bar" style="width: ${Math.max(0, Math.min(100, row.average * 10))}%"></div></div>
           </div>
           <div>
-            <strong>${row.average.toFixed(1)}</strong>
+            <strong>${Number(row.average).toFixed(1)}</strong>
             <div class="subtle">${row.count} eval${row.count === 1 ? "" : "s"}</div>
           </div>
         </div>
       `).join("");
     }
 
-    function renderCases() {
-      const query = state.query;
-      const rows = state.data
-        .map((item) => ({ item, evals: normalizeEvals(item), average: caseAverage(item) }))
-        .filter(({ item, evals }) => matchesQuery(item, evals, query))
-        .sort(caseSorter(state.sort));
-
-      els.visibleCount.textContent = `${rows.length} shown`;
-
+    function renderRuns() {
+      const rows = (dashboard.runs || [])
+        .filter((run) => matchesRun(run))
+        .sort(runSorter(state.sort));
+      els.runCount.textContent = `${rows.length} run${rows.length === 1 ? "" : "s"}`;
       if (!rows.length) {
-        els.cases.innerHTML = `<div class="empty">No cases match the current filter.</div>`;
+        els.runs.innerHTML = `<div class="empty">No runs match the current filter.</div>`;
         return;
       }
-
-      els.cases.innerHTML = rows.map(({ item, evals, average }) => `
-        <article class="case-row">
-          <div class="case-main">
-            <div class="case-title">
-              <h3 class="repo">${escapeHtml(item.repo || "unknown/repo")}</h3>
-              <span class="pill">PR #${escapeHtml(String(item.pr ?? ""))}</span>
-              <span class="pill">${escapeHtml(shortCommit(item.commit))}</span>
-            </div>
-            <p class="docs">${escapeHtml(item.prDocs || "No PR docs captured.")}</p>
-            <div class="links">
-              ${item.prDiff ? `<a href="${escapeAttr(pathHref(item.prDiff))}">original diff</a>` : ""}
-            </div>
-            <div class="eval-grid">
-              ${evals.map((entry) => renderEval(entry)).join("")}
-            </div>
+      els.runs.innerHTML = rows.map((run) => `
+        <article class="run-row">
+          <div class="run-title">
+            <h3 class="repo">${escapeHtml(run.repo)}#${escapeHtml(String(run.prNumber))}</h3>
+            <span class="pill">${escapeHtml(run.evalLLM)}</span>
+            <span class="score ${scoreClass(run.rating)}">${Number(run.rating).toFixed(0)}</span>
           </div>
-          <div class="case-score">
-            <div class="subtle">case avg</div>
-            <strong>${average.toFixed(1)}</strong>
-            <div class="subtle">${evals.length} eval${evals.length === 1 ? "" : "s"}</div>
+          <div class="run-meta">
+            <span class="pill">judge ${escapeHtml(run.evalJudgeLLM)}</span>
+            <span class="pill">summary ${escapeHtml(run.prSummaryLLM)}</span>
+          </div>
+          ${run.judgeNotes ? `<p class="remark">${escapeHtml(truncate(run.judgeNotes, 260))}</p>` : ""}
+          <div class="links">
+            <a href="${escapeAttr(run.detailHref)}">open run</a>
           </div>
         </article>
       `).join("");
     }
 
-    function renderEval(entry) {
-      return `
-        <div class="eval">
-          <div class="eval-head">
-            <div class="model">${escapeHtml(entry.evalLLM)}</div>
-            <div class="score ${scoreClass(entry.rating)}">${Number(entry.rating).toFixed(0)}</div>
-          </div>
-          <div class="eval-meta">
-            <div>judge ${escapeHtml(entry.evalJudgeLLM)}</div>
-            <div>summary ${escapeHtml(entry.prSummaryLLM)}</div>
-            ${entry.evalLLMChangesDiff ? `<a href="${escapeAttr(pathHref(entry.evalLLMChangesDiff))}">candidate diff</a>` : ""}
-          </div>
-        </div>
-      `;
+    function populateModelFilter() {
+      const models = Array.from(new Set((dashboard.runs || []).map((run) => run.evalLLM).filter(Boolean))).sort();
+      els.modelFilter.insertAdjacentHTML(
+        "beforeend",
+        models.map((model) => `<option value="${escapeAttr(model)}">${escapeHtml(model)}</option>`).join(""),
+      );
     }
 
-    function normalizeEvals(item) {
-      return Array.isArray(item.evals)
-        ? item.evals.map((entry) => ({
-            evalLLM: String(entry.evalLLM || "unknown"),
-            prSummaryLLM: String(entry.prSummaryLLM || "unknown"),
-            evalJudgeLLM: String(entry.evalJudgeLLM || "unknown"),
-            evalLLMChangesDiff: String(entry.evalLLMChangesDiff || ""),
-            rating: clampRating(Number(entry.rating)),
-          }))
-        : [];
+    function matchesRun(run) {
+      if (state.model && run.evalLLM !== state.model) return false;
+      if (state.rating && scoreClass(run.rating) !== state.rating) return false;
+      if (!state.query) return true;
+      return [run.repo, run.prNumber, run.evalLLM, run.prSummaryLLM, run.evalJudgeLLM, run.judgeNotes]
+        .join(" ")
+        .toLowerCase()
+        .includes(state.query);
     }
 
-    function matchesQuery(item, evals, query) {
-      if (!query) return true;
-      const haystack = [
-        item.repo,
-        item.pr,
-        item.commit,
-        item.prDocs,
-        item.prDiff,
-        ...evals.flatMap((entry) => [
-          entry.evalLLM,
-          entry.prSummaryLLM,
-          entry.evalJudgeLLM,
-          entry.evalLLMChangesDiff,
-        ]),
-      ].join(" ").toLowerCase();
-      return haystack.includes(query);
-    }
-
-    function caseSorter(sort) {
+    function runSorter(sort) {
       return (left, right) => {
-        if (sort === "rating-asc") return left.average - right.average || repoCompare(left, right);
+        if (sort === "rating-asc") return Number(left.rating || 0) - Number(right.rating || 0) || repoCompare(left, right);
         if (sort === "repo") return repoCompare(left, right);
-        if (sort === "evals-desc") return right.evals.length - left.evals.length || repoCompare(left, right);
-        return right.average - left.average || repoCompare(left, right);
+        if (sort === "model") return String(left.evalLLM || "").localeCompare(String(right.evalLLM || "")) || repoCompare(left, right);
+        return Number(right.rating || 0) - Number(left.rating || 0) || repoCompare(left, right);
       };
     }
 
     function repoCompare(left, right) {
-      return String(left.item.repo || "").localeCompare(String(right.item.repo || "")) ||
-        Number(left.item.pr || 0) - Number(right.item.pr || 0);
-    }
-
-    function caseAverage(item) {
-      const evals = normalizeEvals(item);
-      return evals.length ? average(evals.map((entry) => entry.rating)) : 0;
-    }
-
-    function average(values) {
-      return values.reduce((total, value) => total + value, 0) / Math.max(values.length, 1);
-    }
-
-    function clampRating(value) {
-      if (!Number.isFinite(value)) return 0;
-      return Math.max(0, Math.min(10, value));
+      return String(left.repo || "").localeCompare(String(right.repo || "")) ||
+        Number(left.prNumber || 0) - Number(right.prNumber || 0);
     }
 
     function scoreClass(value) {
@@ -654,9 +342,9 @@
       return "bad";
     }
 
-    function shortCommit(commit) {
-      const value = String(commit || "");
-      return value.length > 12 ? value.slice(0, 12) : value || "no commit";
+    function truncate(value, maxLength) {
+      const text = String(value || "");
+      return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
     }
 
     function escapeHtml(value) {
@@ -670,14 +358,6 @@
 
     function escapeAttr(value) {
       return escapeHtml(String(value));
-    }
-
-    function pathHref(value) {
-      const path = String(value || "");
-      if (/^(?:https?:)?\/\//.test(path) || path.startsWith("/") || path.startsWith("../") || path.startsWith("./")) {
-        return path;
-      }
-      return `../../${path}`;
     }
   </script>
 </body>

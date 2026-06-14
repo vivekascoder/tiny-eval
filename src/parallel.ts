@@ -117,8 +117,9 @@ export async function runEvalJobs(
         }
         settled = true;
         activeWorkers.delete(worker);
+        const code = typeof event === "object" && event !== null && "code" in event ? event.code : "unknown";
         rejectOnce(
-          new Error(`Worker closed before completing PR #${job.item.prNumber} (${job.evalLLM}); exit code ${event.code}`),
+          new Error(`Worker closed before completing PR #${job.item.prNumber} (${job.evalLLM}); exit code ${code}`),
         );
       });
 
