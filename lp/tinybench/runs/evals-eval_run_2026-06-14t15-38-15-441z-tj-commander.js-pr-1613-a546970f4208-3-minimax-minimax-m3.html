@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tj/commander.js#1613 minimax/minimax-m3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-primary: #202020;
+      --background-primary-alt: #1a1a1a;
+      --background-secondary: #161616;
+      --background-secondary-alt: #0f0f0f;
+      --background-modifier-border: #363636;
+      --background-modifier-hover: #2a2a2a;
+      --text-normal: #dcddde;
+      --text-muted: #999999;
+      --text-faint: #666666;
+      --text-accent: #a48cf2;
+      --text-accent-hover: #b9a7ff;
+      --interactive-accent: #7f6df2;
+      --green: #70c27e;
+      --yellow: #d6b96d;
+      --red: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    html {
+      background: var(--background-secondary-alt);
+      color: var(--text-normal);
+      font-family: "Iosevka Charon", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0;
+    }
+    body { margin: 0; min-height: 100vh; background: var(--background-primary); }
+    a { color: var(--text-accent); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    a:hover { color: var(--text-accent-hover); }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 20px; line-height: 1.1; font-weight: 700; overflow-wrap: anywhere; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: rgba(32, 32, 32, 0.96);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner, .shell { width: 100%; max-width: 72rem; margin-inline: auto; padding-inline: 16px; }
+    .topbar-inner {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .shell { padding-block: 28px 48px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--text-normal); text-decoration: none; }
+    .brand:hover { color: var(--text-normal); }
+    .nav { display: flex; align-items: center; gap: 14px; font-size: 13px; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      color: var(--text-accent);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+    .top {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--background-modifier-border);
+    }
+    .meta, .remark { color: var(--text-muted); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+    .page-title { font-size: 28px; line-height: 1.15; overflow-wrap: anywhere; }
+    .section-title { font-size: 18px; line-height: 1.2; margin: 8px 0 0; }
+    .meta-grid { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 999px;
+      background: var(--background-primary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .score {
+      display: inline-grid;
+      place-items: center;
+      min-width: 36px;
+      height: 30px;
+      border-radius: 6px;
+      color: var(--background-secondary-alt);
+      font-weight: 700;
+    }
+    .score.good { background: var(--green); }
+    .score.mid { background: var(--yellow); }
+    .score.bad { background: var(--red); }
+    .diff-stack { display: grid; gap: 18px; }
+    .diff-section {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      overflow: hidden;
+    }
+    .diff-section[hidden] { display: none; }
+    .diff-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-primary-alt);
+    }
+    .diff-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .collapse-toggle {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .collapse-toggle::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--text-muted);
+      transition: transform 140ms ease;
+    }
+    .collapse-toggle[aria-expanded="false"]::before {
+      transform: rotate(-90deg);
+    }
+    .diff-head h2 { font-size: 14px; }
+    .diff-content[hidden] { display: none; }
+    .split-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-secondary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .split-labels div {
+      padding: 8px 14px;
+      min-width: 0;
+    }
+    .split-labels div + div {
+      border-left: 1px solid var(--background-modifier-border);
+    }
+    .diff-body { overflow-x: auto; }
+    .diff-container {
+      display: block;
+      margin-bottom: 12px;
+    }
+    .diff-container:last-child {
+      margin-bottom: 0;
+    }
+    .empty { padding: 28px 14px; color: var(--text-muted); text-align: center; line-height: 1.45; }
+    .raw-diff {
+      margin: 0;
+      padding: 14px;
+      overflow-x: auto;
+      color: var(--text-normal);
+      background: var(--background-secondary);
+      line-height: 1.4;
+      white-space: pre;
+    }
+    .footer {
+      padding-top: 22px;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .topbar-inner, .shell { padding-inline: 10px; }
+      .diff-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../index.html">
+        <div class="mark">tb</div>
+        <div>
+          <h1>TinyBench</h1>
+        </div>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="../../index.html">Tiny Eval</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <header class="top">
+      <h2 class="page-title">tj/commander.js#1613</h2>
+      <div class="meta-grid">
+        <span class="pill">minimax/minimax-m3</span>
+        <span class="pill">summary deepseek/deepseek-v4-flash</span>
+        <span class="pill">judge deepseek/deepseek-v4-pro</span>
+        <span class="score bad">1</span>
+      </div>
+      
+      <h2 id="pr-doc-prompt" class="section-title">PR doc prompt</h2>
+      <p class="meta"># Add setOptionValueWithSource and getOptionValueSource
+
+# Pull Request
+
+## Problem
+
+- It is difficult for clients to detect whether options with default values have been specified on the command-line.
+- It is difficult for clients to manage priorities when merging in option values from different sources.
+
+Resolves: https://github.com/tj/commander.js/issues/1584#issuecomment-917535941
+Related: #151 #328 #1394 #1541 #1595 #1607
+
+## Solution
+
+The work to support `.env()` had to solve similar problems, and I had config and cli-detection in mind.
+
+Make `.setOptionValueWithSource()` public. Add matching `.getOptionValueSource()`.
+
+(These routines are quite low-level with long names, but my thinking is they are tools for allowing clients to roll their own custom behaviours and won&#39;t be used by the majority of users.)
+
+## ChangeLog
+
+- Added: `.getOptionValueSource()` and `.setOptionValueWithSource()`, where source is one of &#39;default&#39;, &#39;env&#39;, &#39;config&#39;, &#39;cli&#39;</p>
+      
+      
+      <h2 id="agent-remarks" class="section-title">Agent remarks</h2>
+      <p class="remark">The candidate diff is empty (no changes). It does not implement the new public methods `setOptionValueWithSource` and `getOptionValueSource`, nor any related logic. This will not compile and completely fails to deliver the intended functionality.</p>
+      
+    </header>
+
+    <section class="diff-stack">
+      <article id="original-section" class="diff-section">
+        <div class="diff-head">
+          <div class="diff-title">
+            <button class="collapse-toggle" type="button" data-collapse-target="original-content" aria-expanded="true" aria-label="Toggle Original PR Diff"></button>
+            <h2>Original PR Diff</h2>
+          </div>
+          <div class="meta">rendered with @pierre/diffs</div>
+        </div>
+        <div id="original-content" class="diff-content">
+          <div class="split-labels" aria-hidden="true">
+            <div>Original</div>
+            <div>Changes</div>
+          </div>
+          <div id="original-diff" class="diff-body"></div>
+        </div>
+      </article>
+
+      <article id="agent-section" class="diff-section">
+        <div class="diff-head">
+          <div class="diff-title">
+            <button class="collapse-toggle" type="button" data-collapse-target="agent-content" aria-expanded="true" aria-label="Toggle Eval agent generated diff"></button>
+            <h2>Eval agent generated diff</h2>
+          </div>
+          <div class="meta">eval LLM generated diff</div>
+        </div>
+        <div id="agent-content" class="diff-content">
+          <div class="split-labels" aria-hidden="true">
+            <div>Original</div>
+            <div>Changes</div>
+          </div>
+          <div id="candidate-diff" class="diff-body"></div>
+        </div>
+      </article>
+    </section>
+    <footer class="footer">
+      <a href="https://vivek.ink">vivek.ink</a>
+    </footer>
+  </main>
+  <script id="diff-payload" type="application/json">{"original":"diff --git a/Readme.md b/Readme.md\nindex fb35819d5..9a2ab9500 100644\n--- a/Readme.md\n+++ b/Readme.md\n@@ -98,7 +98,8 @@ const program = new Command();\n Options are defined with the `.option()` method, also serving as documentation for the options. Each option can have a short flag (single character) and a long name, separated by a comma or space or vertical bar ('|').\n \n The parsed options can be accessed by calling `.opts()` on a `Command` object, and are passed to the action handler.\n-You can also use `.getOptionValue()` and `.setOptionValue()` to work with a single option value.\n+(You can also use `.getOptionValue()` and `.setOptionValue()` to work with a single option value,\n+and `.getOptionValueSource()` and `.setOptionValueWithSource()` when it matters where the option value came from.)\n \n Multi-word options such as \"--template-engine\" are camel-cased, becoming `program.opts().templateEngine` etc.\n \ndiff --git a/lib/command.js b/lib/command.js\nindex 184bc0b79..f98de7229 100644\n--- a/lib/command.js\n+++ b/lib/command.js\n@@ -36,7 +36,7 @@ class Command extends EventEmitter {\n     this._scriptPath = null;\n     this._name = name || '';\n     this._optionValues = {};\n-    this._optionValueSources = {}; // default < env < cli\n+    this._optionValueSources = {}; // default < config < env < cli\n     this._storeOptionsAsProperties = false;\n     this._actionHandler = null;\n     this._executableHandler = false;\n@@ -527,7 +527,7 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n       }\n       // preassign only if we have a default\n       if (defaultValue !== undefined) {\n-        this._setOptionValueWithSource(name, defaultValue, 'default');\n+        this.setOptionValueWithSource(name, defaultValue, 'default');\n       }\n     }\n \n@@ -558,13 +558,13 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n       if (typeof oldValue === 'boolean' || typeof oldValue === 'undefined') {\n         // if no value, negate false, and we have a default, then use it!\n         if (val == null) {\n-          this._setOptionValueWithSource(name, option.negate ? false : defaultValue || true, valueSource);\n+          this.setOptionValueWithSource(name, option.negate ? false : defaultValue || true, valueSource);\n         } else {\n-          this._setOptionValueWithSource(name, val, valueSource);\n+          this.setOptionValueWithSource(name, val, valueSource);\n         }\n       } else if (val !== null) {\n         // reassign\n-        this._setOptionValueWithSource(name, option.negate ? false : val, valueSource);\n+        this.setOptionValueWithSource(name, option.negate ? false : val, valueSource);\n       }\n     };\n \n@@ -793,13 +793,32 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n   };\n \n   /**\n-   * @api private\n-   */\n-  _setOptionValueWithSource(key, value, source) {\n+   * Store option value and where the value came from.\n+    *\n+    * @param {string} key\n+    * @param {Object} value\n+    * @param {string} source - expected values are default/config/env/cli\n+    * @return {Command} `this` command for chaining\n+    */\n+\n+  setOptionValueWithSource(key, value, source) {\n     this.setOptionValue(key, value);\n     this._optionValueSources[key] = source;\n+    return this;\n   }\n \n+  /**\n+    * Get source of option value.\n+    * Expected values are default | config | env | cli\n+    *\n+    * @param {string} key\n+    * @return {string}\n+    */\n+\n+  getOptionValueSource(key) {\n+    return this._optionValueSources[key];\n+  };\n+\n   /**\n    * Get user arguments implied or explicit arguments.\n    * Side-effects: set _scriptPath if args included application, and use that to set implicit command name.\n@@ -1112,6 +1131,7 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n    * @param {Promise|undefined} promise\n    * @param {Function} fn\n    * @return {Promise|undefined}\n+   * @api private\n    */\n \n   _chainOrCall(promise, fn) {\n@@ -1456,8 +1476,8 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n     this.options.forEach((option) => {\n       if (option.envVar && option.envVar in process.env) {\n         const optionKey = option.attributeName();\n-        // env is second lowest priority source, above default\n-        if (this.getOptionValue(optionKey) === undefined || this._optionValueSources[optionKey] === 'default') {\n+        // Priority check. Do not overwrite cli or options from unknown source (client-code).\n+        if (this.getOptionValue(optionKey) === undefined || ['default', 'config', 'env'].includes(this.getOptionValueSource(optionKey))) {\n           if (option.required || option.optional) { // option can take a value\n             // keep very simple, optional always takes value\n             this.emit(`optionEnv:${option.name()}`, process.env[option.envVar]);\ndiff --git a/tests/command.chain.test.js b/tests/command.chain.test.js\nindex 09fc6e5a3..1ecc170f5 100644\n--- a/tests/command.chain.test.js\n+++ b/tests/command.chain.test.js\n@@ -174,7 +174,13 @@ describe('Command methods that should return this for chaining', () => {\n \n   test('when call .setOptionValue() then returns this', () => {\n     const program = new Command();\n-    const result = program.setOptionValue();\n+    const result = program.setOptionValue('foo', 'bar');\n+    expect(result).toBe(program);\n+  });\n+\n+  test('when call .setOptionValueWithSource() then returns this', () => {\n+    const program = new Command();\n+    const result = program.setOptionValueWithSource('foo', 'bar', 'cli');\n     expect(result).toBe(program);\n   });\n \ndiff --git a/tests/options.env.test.js b/tests/options.env.test.js\nindex 5dc53cd37..593da1027 100644\n--- a/tests/options.env.test.js\n+++ b/tests/options.env.test.js\n@@ -27,6 +27,26 @@ describe.each(['-f, --foo <required-arg>', '-f, --foo [optional-arg]'])('option\n     delete process.env.BAR;\n   });\n \n+  test('when env defined and value source is config then option from env', () => {\n+    const program = new commander.Command();\n+    process.env.BAR = 'env';\n+    program.addOption(new commander.Option(fooFlags).env('BAR'));\n+    program.setOptionValueWithSource('foo', 'config', 'config');\n+    program.parse([], { from: 'user' });\n+    expect(program.opts().foo).toBe('env');\n+    delete process.env.BAR;\n+  });\n+\n+  test('when env defined and value source is unspecified then option unchanged', () => {\n+    const program = new commander.Command();\n+    process.env.BAR = 'env';\n+    program.addOption(new commander.Option(fooFlags).env('BAR'));\n+    program.setOptionValue('foo', 'client');\n+    program.parse([], { from: 'user' });\n+    expect(program.opts().foo).toBe('client');\n+    delete process.env.BAR;\n+  });\n+\n   test('when default and env undefined and no cli then option from default', () => {\n     const program = new commander.Command();\n     program.addOption(new commander.Option(fooFlags).env('BAR').default('default'));\ndiff --git a/tests/options.getset.test.js b/tests/options.getset.test.js\nindex adb15e639..23927f31b 100644\n--- a/tests/options.getset.test.js\n+++ b/tests/options.getset.test.js\n@@ -22,3 +22,38 @@ describe.each([true, false])('storeOptionsAsProperties is %s', (storeOptionsAsPr\n     expect(program.opts().cheese).toBe(cheeseType);\n   });\n });\n+\n+test('when setOptionValueWithSource then value returned by opts', () => {\n+  const program = new commander.Command();\n+  const cheeseValue = 'blue';\n+  program\n+    .option('--cheese [type]', 'cheese type')\n+    .setOptionValue('cheese', cheeseValue);\n+  expect(program.opts().cheese).toBe(cheeseValue);\n+});\n+\n+test('when setOptionValueWithSource then source returned by getOptionValueSource', () => {\n+  const program = new commander.Command();\n+  program\n+    .option('--cheese [type]', 'cheese type')\n+    .setOptionValueWithSource('cheese', 'blue', 'config');\n+  expect(program.getOptionValueSource('cheese')).toBe('config');\n+});\n+\n+test('when option value parsed from env then option source is env', () => {\n+  const program = new commander.Command();\n+  process.env.BAR = 'env';\n+  program\n+    .addOption(new commander.Option('-f, --foo').env('BAR'));\n+  program.parse([], { from: 'user' });\n+  expect(program.getOptionValueSource('foo')).toBe('env');\n+  delete process.env.BAR;\n+});\n+\n+test('when option value parsed from cli then option source is cli', () => {\n+  const program = new commander.Command();\n+  program\n+    .addOption(new commander.Option('-f, --foo').env('BAR'));\n+  program.parse(['--foo'], { from: 'user' });\n+  expect(program.getOptionValueSource('foo')).toBe('cli');\n+});\ndiff --git a/typings/index.d.ts b/typings/index.d.ts\nindex cba74f681..7f02940ac 100644\n--- a/typings/index.d.ts\n+++ b/typings/index.d.ts\n@@ -214,8 +214,9 @@ export interface OutputConfiguration {\n \n }\n \n-type AddHelpTextPosition = 'beforeAll' | 'before' | 'after' | 'afterAll';\n-type HookEvent = 'preAction' | 'postAction';\n+export type AddHelpTextPosition = 'beforeAll' | 'before' | 'after' | 'afterAll';\n+export type HookEvent = 'preAction' | 'postAction';\n+export type OptionValueSource = 'default' | 'env' | 'config' | 'cli';\n \n export interface OptionValues {\n   [key: string]: any;\n@@ -526,12 +527,22 @@ export class Command {\n    */\n   getOptionValue(key: string): any;\n \n-   /**\n+  /**\n    * Store option value.\n    */\n   setOptionValue(key: string, value: unknown): this;\n \n   /**\n+   * Store option value and where the value came from.\n+   */\n+  setOptionValueWithSource(key: string, value: unknown, source: OptionValueSource): this;\n+\n+  /**\n+   * Retrieve option value source.\n+   */\n+  getOptionValueSource(key: string): OptionValueSource;\n+\n+   /**\n    * Alter parsing of short flags with optional values.\n    *\n    * @example\ndiff --git a/typings/index.test-d.ts b/typings/index.test-d.ts\nindex 7ef3417ea..d83c198c1 100644\n--- a/typings/index.test-d.ts\n+++ b/typings/index.test-d.ts\n@@ -155,6 +155,12 @@ void program.getOptionValue('example');\n expectType<commander.Command>(program.setOptionValue('example', 'value'));\n expectType<commander.Command>(program.setOptionValue('example', true));\n \n+// setOptionValueWithSource\n+expectType<commander.Command>(program.setOptionValueWithSource('example', [], 'cli'));\n+\n+// getOptionValueSource\n+expectType<commander.OptionValueSource>(program.getOptionValueSource('example'));\n+\n // combineFlagAndOptionalValue\n expectType<commander.Command>(program.combineFlagAndOptionalValue());\n expectType<commander.Command>(program.combineFlagAndOptionalValue(false));\n","candidate":""}</script>
+  <script>
+    for (const button of document.querySelectorAll("[data-collapse-target]")) {
+      button.addEventListener("click", () => {
+        const target = document.getElementById(button.dataset.collapseTarget);
+        if (!target) return;
+        const nextExpanded = target.hidden;
+        target.hidden = !nextExpanded;
+        button.setAttribute("aria-expanded", String(nextExpanded));
+      });
+    }
+  </script>
+  <script type="module" src="../assets/tinybench-client.js"></script>
+</body>
+</html>

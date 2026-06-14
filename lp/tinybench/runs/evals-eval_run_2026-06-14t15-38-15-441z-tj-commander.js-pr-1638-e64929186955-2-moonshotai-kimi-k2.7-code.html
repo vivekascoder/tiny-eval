@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>lodash/lodash#9 deepseek/deepseek-v4-flash</title>
+  <title>tj/commander.js#1638 moonshotai/kimi-k2.7-code</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -215,22 +215,36 @@
 
   <main class="shell">
     <header class="top">
-      <h2 class="page-title">lodash/lodash#9</h2>
+      <h2 class="page-title">tj/commander.js#1638</h2>
       <div class="meta-grid">
-        <span class="pill">deepseek/deepseek-v4-flash</span>
+        <span class="pill">moonshotai/kimi-k2.7-code</span>
         <span class="pill">summary deepseek/deepseek-v4-flash</span>
         <span class="pill">judge deepseek/deepseek-v4-pro</span>
-        <span class="score bad">1</span>
+        <span class="score good">10</span>
       </div>
       
       <h2 id="pr-doc-prompt" class="section-title">PR doc prompt</h2>
-      <p class="meta"># Add Node.js benchmark. Fixes #8
+      <p class="meta"># Wrap emit to preserve callback order when async
 
-![screenshot](https://img.skitch.com/20120515-gks14k4csutkk3ct3t886ubtg9.png)</p>
+# Pull Request
+
+## Problem
+
+(Noticed while reading code.)
+
+The emit for a subcommand listener was not being chained, so could happen before the action handler if there were async hooks or action.
+
+## Solution
+
+Wrap emit in a function and chain too.
+
+## ChangeLog
+
+- Emit subcommand event in correct order when using async callbacks.</p>
       
       
       <h2 id="agent-remarks" class="section-title">Agent remarks</h2>
-      <p class="remark">The candidate diff contains no changes, so it fails to add the benchmark script (benchmark/test.js) or update package.json with the devDependency. It does not implement the intended functionality at all.</p>
+      <p class="remark">The candidate wraps the emit call inside _chainOrCall, ensuring it occurs after the action handler and before postAction hooks. The only difference is moving the parent existence check inside the chained callback, which still results in identical behavior: emit is only called when a parent exists, and it is properly ordered in the async chain. No compilation issues.</p>
       
     </header>
 
@@ -273,7 +287,7 @@
       <a href="https://vivek.ink">vivek.ink</a>
     </footer>
   </main>
-  <script id="diff-payload" type="application/json">{"original":"diff --git a/benchmark/test.js b/benchmark/test.js\nnew file mode 100644\nindex 0000000000..99dc2eeed9\n--- /dev/null\n+++ b/benchmark/test.js\n@@ -0,0 +1,150 @@\n+/*global _, lodash */\n+var Benchmark = require('../vendor/benchmark.js');\n+var colors = require('colors');\n+var count = {\n+\tunderscore: 0,\n+\tlodash: 0\n+};\n+\n+// Workaround node.js scoping issue\n+global.lodash = require('../');\n+global._ = require('../vendor/underscore');\n+\n+\n+Benchmark.options.setup = function() {\n+\tvar objects, randomized;\n+\tvar lodash = global.lodash;\n+\tvar _ = global._;\n+\tvar numbers = [];\n+\tvar object = {};\n+\tvar i = 0;\n+\n+\tfor ( ; i < 20; i++ ) {\n+\t\tnumbers[ i ] = i;\n+\t\tobject[ 'key' + i ] = i;\n+\t}\n+\n+\tobjects = _.map(numbers, function( n ) {\n+\t\treturn { 'num': n };\n+\t});\n+\trandomized = _.sortBy(numbers, function() {\n+\t\treturn Math.random();\n+\t});\n+};\n+\n+function start() {\n+\tconsole.log( '\\n' + this.name.bold );\n+}\n+\n+function cycle( e ) {\n+\tconsole.log( e.target.toString().grey );\n+}\n+\n+function complete() {\n+\tconsole.log( this.filter('fastest').pluck('name').toString().green + ' fastest' );\n+\tcount.underscore += this[0].count;\n+\tcount.lodash += this[1].count;\n+}\n+\n+\n+/* each */\n+Benchmark.Suite('each')\n+.add('Underscore', function() {\n+\tvar timesTwo = [];\n+\t_.each( numbers, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.add('Lodash', function() {\n+\tvar timesTwo = [];\n+\tlodash.each( numbers, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* each object */\n+Benchmark.Suite('each object')\n+.add('Underscore', function() {\n+\tvar timesTwo = [];\n+\t_.each( object, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.add('Lodash', function() {\n+\tvar timesTwo = [];\n+\tlodash.each( object, function( num ) {\n+\t\ttimesTwo.push( num * 2 );\n+\t});\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* keys */\n+Benchmark.Suite('keys')\n+.add('Underscore', function() {\n+\t_.keys( object );\n+})\n+.add('Lodash', function() {\n+\tlodash.keys( object );\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* map */\n+Benchmark.Suite('map')\n+.add('Underscore', function() {\n+\t_.map( objects, function( obj ) {\n+\t\treturn obj.num;\n+\t});\n+})\n+.add('Lodash', function() {\n+\tlodash.map( objects, function( obj ) {\n+\t\treturn obj.num;\n+\t});\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* pluck */\n+Benchmark.Suite('pluck')\n+.add('Underscore', function() {\n+\t_.pluck( objects, 'num' );\n+})\n+.add('Lodash', function() {\n+\tlodash.pluck( objects, 'num' );\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+/* values */\n+Benchmark.Suite('values')\n+.add('Underscore', function() {\n+\t_.values( objects );\n+})\n+.add('Lodash', function() {\n+\tlodash.values( objects );\n+})\n+.on( 'start', start )\n+.on( 'cycle', cycle )\n+.on( 'complete', complete )\n+.run();\n+\n+\n+console.log( ('\\nLodash is ' + ( count.lodash / count.underscore ).toFixed(2) + 'x faster than Underscore' ).green );\n\\ No newline at end of file\ndiff --git a/package.json b/package.json\nindex 42768ad24b..2cf201271e 100644\n--- a/package.json\n+++ b/package.json\n@@ -38,5 +38,8 @@\n   \"directories\": {\n     \"doc\": \"./doc\",\n     \"test\": \"./test\"\n+  },\n+  \"devDependencies\": {\n+    \"colors\": \"~0.6.0\"\n   }\n }\n\\ No newline at end of file\n","candidate":""}</script>
+  <script id="diff-payload" type="application/json">{"original":"diff --git a/lib/command.js b/lib/command.js\nindex 4756cf5a0..695c840ec 100644\n--- a/lib/command.js\n+++ b/lib/command.js\n@@ -1225,7 +1225,11 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n       let actionResult;\n       actionResult = this._chainOrCallHooks(actionResult, 'preAction');\n       actionResult = this._chainOrCall(actionResult, () => this._actionHandler(this.processedArgs));\n-      if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy\n+      if (this.parent) {\n+        actionResult = this._chainOrCall(actionResult, () => {\n+          this.parent.emit(commandEvent, operands, unknown); // legacy\n+        });\n+      }\n       actionResult = this._chainOrCallHooks(actionResult, 'postAction');\n       return actionResult;\n     }\n","candidate":"diff --git a/lib/command.js b/lib/command.js\nindex 4756cf5a..a579e639 100644\n--- a/lib/command.js\n+++ b/lib/command.js\n@@ -1225,7 +1225,9 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n       let actionResult;\n       actionResult = this._chainOrCallHooks(actionResult, 'preAction');\n       actionResult = this._chainOrCall(actionResult, () => this._actionHandler(this.processedArgs));\n-      if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy\n+      actionResult = this._chainOrCall(actionResult, () => {\n+        if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy\n+      });\n       actionResult = this._chainOrCallHooks(actionResult, 'postAction');\n       return actionResult;\n     }\n"}</script>
   <script>
     for (const button of document.querySelectorAll("[data-collapse-target]")) {
       button.addEventListener("click", () => {

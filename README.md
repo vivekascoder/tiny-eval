@@ -53,3 +53,33 @@ The evaluator checks out the repository at the commit immediately before each se
 - `src/agent.ts`: eval-agent tools and command restrictions.
 - `src/dataset.ts`, `src/eval.ts`: dataset preparation and per-case eval flow.
 - `src/git.ts`, `src/github.ts`: host-side repository and GitHub API plumbing.
+
+## TinyBench
+
+```json
+[
+  {
+    "repo": "openai/openai-python",
+    "commit": "commit before pr",
+    "pr": 13,
+    "prDocs": "docs",
+    "prDiff": "path to diff",
+    "evals": [
+      {
+        "evalLLM": "anthropic/claude-sonnet-4",
+        "prSummaryLLM": "openai/gpt-4.1-mini",
+        "evalJudgeLLM": "anthropic/claude-sonnet-4",
+        "rating": 0,
+        "evalLLMChangesDiff": ""
+      }
+    ]
+  }
+]
+```
+
+```bash
+bun run tval run-eval
+  --repo tj/commander.js \
+  --prs 1613,1638 \
+  --eval-llms moonshotai/kimi-k2.7-code,minimax/minimax-m3,deepseek/deepseek-v4-pro, --pr-summary-llm deepseek/deepseek-v4-flash --eval-judge-llm deepseek/deepseek-v4-pro
+```

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>expressjs/express#645 minimax/minimax-m3</title>
+  <title>tj/commander.js#1638 minimax/minimax-m3</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -215,7 +215,7 @@
 
   <main class="shell">
     <header class="top">
-      <h2 class="page-title">expressjs/express#645</h2>
+      <h2 class="page-title">tj/commander.js#1638</h2>
       <div class="meta-grid">
         <span class="pill">minimax/minimax-m3</span>
         <span class="pill">summary deepseek/deepseek-v4-flash</span>
@@ -224,13 +224,27 @@
       </div>
       
       <h2 id="pr-doc-prompt" class="section-title">PR doc prompt</h2>
-      <p class="meta"># Incorrect reference to template in a comment
+      <p class="meta"># Wrap emit to preserve callback order when async
 
-The comment here refers to using &quot;jade&quot; for layouts, but you&#39;re using &quot;ejs&quot; instead.</p>
+# Pull Request
+
+## Problem
+
+(Noticed while reading code.)
+
+The emit for a subcommand listener was not being chained, so could happen before the action handler if there were async hooks or action.
+
+## Solution
+
+Wrap emit in a function and chain too.
+
+## ChangeLog
+
+- Emit subcommand event in correct order when using async callbacks.</p>
       
       
       <h2 id="agent-remarks" class="section-title">Agent remarks</h2>
-      <p class="remark">The candidate makes no changes, failing to apply the comment correction (jade -&gt; ejs). The original PR fixed the incorrect template engine reference in the comment; the candidate does not implement this behavior.</p>
+      <p class="remark">The candidate diff does not assign the result of _chainOrCall back to actionResult, so the emit is not properly chained. The postAction hooks will not wait for the emit to complete, preserving the exact ordering bug the original PR intended to fix. The change does not implement the required behavior.</p>
       
     </header>
 
@@ -273,7 +287,7 @@ The comment here refers to using &quot;jade&quot; for layouts, but you&#39;re us
       <a href="https://vivek.ink">vivek.ink</a>
     </footer>
   </main>
-  <script id="diff-payload" type="application/json">{"original":"diff --git a/examples/layout-control/app.js b/examples/layout-control/app.js\nindex 16a844adbec..cd269f26050 100644\n--- a/examples/layout-control/app.js\n+++ b/examples/layout-control/app.js\n@@ -1,4 +1,3 @@\n-\n // Expose modules in ./support for demo purposes\n require.paths.unshift(__dirname + '/../../support');\n \n@@ -15,7 +14,7 @@ app.set('views', __dirname + '/views');\n // set default layout, usually \"layout\"\n app.set('view options', { layout: 'layouts/default' });\n \n-// Set our default template engine to \"jade\"\n+// Set our default template engine to \"ejs\"\n // which prevents the need for extensions\n // (although you can still mix and match)\n app.set('view engine', 'ejs');\n","candidate":""}</script>
+  <script id="diff-payload" type="application/json">{"original":"diff --git a/lib/command.js b/lib/command.js\nindex 4756cf5a0..695c840ec 100644\n--- a/lib/command.js\n+++ b/lib/command.js\n@@ -1225,7 +1225,11 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n       let actionResult;\n       actionResult = this._chainOrCallHooks(actionResult, 'preAction');\n       actionResult = this._chainOrCall(actionResult, () => this._actionHandler(this.processedArgs));\n-      if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy\n+      if (this.parent) {\n+        actionResult = this._chainOrCall(actionResult, () => {\n+          this.parent.emit(commandEvent, operands, unknown); // legacy\n+        });\n+      }\n       actionResult = this._chainOrCallHooks(actionResult, 'postAction');\n       return actionResult;\n     }\n","candidate":"diff --git a/lib/command.js b/lib/command.js\nindex 4756cf5a..d015f1c8 100644\n--- a/lib/command.js\n+++ b/lib/command.js\n@@ -1225,7 +1225,7 @@ Expecting one of '${allowedValues.join(\"', '\")}'`);\n       let actionResult;\n       actionResult = this._chainOrCallHooks(actionResult, 'preAction');\n       actionResult = this._chainOrCall(actionResult, () => this._actionHandler(this.processedArgs));\n-      if (this.parent) this.parent.emit(commandEvent, operands, unknown); // legacy\n+      if (this.parent) this._chainOrCall(actionResult, () => this.parent.emit(commandEvent, operands, unknown)); // legacy\n       actionResult = this._chainOrCallHooks(actionResult, 'postAction');\n       return actionResult;\n     }\n"}</script>
   <script>
     for (const button of document.querySelectorAll("[data-collapse-target]")) {
       button.addEventListener("click", () => {
