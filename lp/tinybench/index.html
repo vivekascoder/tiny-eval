@@ -57,9 +57,10 @@
     }
 
     .shell {
-      width: min(1240px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 28px 0 48px;
+      width: 100%;
+      max-width: 60rem;
+      margin-inline: auto;
+      padding: 28px 16px 48px;
     }
 
     .topbar {
@@ -72,9 +73,11 @@
     }
 
     .topbar-inner {
-      width: min(1240px, calc(100% - 32px));
+      width: 100%;
+      max-width: 60rem;
       min-height: 68px;
-      margin: 0 auto;
+      margin-inline: auto;
+      padding-inline: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -169,51 +172,10 @@
       color: var(--text-normal);
     }
 
-    .file-input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      margin: 24px 0;
-    }
-
-    .stat {
-      border: 1px solid var(--background-modifier-border);
-      border-radius: 8px;
-      background: var(--background-secondary);
-      padding: 14px;
-      min-width: 0;
-    }
-
-    .stat span {
-      display: block;
-      color: var(--text-muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0;
-    }
-
-    .stat strong {
-      display: block;
-      margin-top: 6px;
-      color: var(--text-normal);
-      font-size: 28px;
-      line-height: 1;
-      overflow-wrap: anywhere;
-    }
-
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
       gap: 16px;
-      align-items: start;
+      margin-top: 18px;
     }
 
     .panel {
@@ -246,9 +208,6 @@
     }
 
     .case-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 14px;
       padding: 14px;
       border-bottom: 1px solid var(--line);
     }
@@ -358,13 +317,15 @@
     }
 
     .case-score {
-      min-width: 88px;
-      text-align: right;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 10px;
+      color: var(--text-muted);
     }
 
     .case-score strong {
-      display: block;
-      font-size: 24px;
+      font-size: 16px;
       color: var(--green);
     }
 
@@ -411,13 +372,6 @@
       line-height: 1.45;
     }
 
-    .status {
-      min-height: 18px;
-      color: var(--text-muted);
-      font-size: 12px;
-      text-align: right;
-    }
-
     @media (max-width: 920px) {
       .topbar-inner {
         align-items: stretch;
@@ -429,31 +383,18 @@
         justify-content: flex-start;
       }
 
-      .stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
       .case-score {
         text-align: left;
       }
     }
 
     @media (max-width: 620px) {
-      .shell,
+      .shell {
+        padding-inline: 10px;
+      }
+
       .topbar-inner {
-        width: min(100% - 20px, 1240px);
-      }
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .case-row {
-        grid-template-columns: 1fr;
+        padding-inline: 10px;
       }
 
       .search,
@@ -486,31 +427,12 @@
           <option value="repo">Repository</option>
           <option value="evals-desc">Most evals</option>
         </select>
-        <label class="button" for="file">Load JSON</label>
-        <input id="file" class="file-input" type="file" accept="application/json,.json">
       </div>
     </div>
   </header>
 
   <main class="shell">
-    <div id="status" class="status">Loading ../../tinyBench.json</div>
-
-    <section class="stats" aria-label="TinyBench summary">
-      <div class="stat"><span>Cases</span><strong id="caseCount">0</strong></div>
-      <div class="stat"><span>Evals</span><strong id="evalCount">0</strong></div>
-      <div class="stat"><span>Models</span><strong id="modelCount">0</strong></div>
-      <div class="stat"><span>Average</span><strong id="avgScore">0.0</strong></div>
-    </section>
-
     <section class="layout">
-      <div class="panel">
-        <div class="panel-head">
-          <h2 class="panel-title">Cases</h2>
-          <div id="visibleCount" class="subtle">0 shown</div>
-        </div>
-        <div id="cases" class="bench-list"></div>
-      </div>
-
       <aside class="panel">
         <div class="panel-head">
           <h2 class="panel-title">Leaderboard</h2>
@@ -518,6 +440,14 @@
         </div>
         <div id="leaderboard" class="leaderboard"></div>
       </aside>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Cases</h2>
+          <div id="visibleCount" class="subtle">0 shown</div>
+        </div>
+        <div id="cases" class="bench-list"></div>
+      </div>
     </section>
   </main>
 
@@ -529,14 +459,8 @@
     };
 
     const els = {
-      status: document.querySelector("#status"),
       search: document.querySelector("#search"),
       sort: document.querySelector("#sort"),
-      file: document.querySelector("#file"),
-      caseCount: document.querySelector("#caseCount"),
-      evalCount: document.querySelector("#evalCount"),
-      modelCount: document.querySelector("#modelCount"),
-      avgScore: document.querySelector("#avgScore"),
       visibleCount: document.querySelector("#visibleCount"),
       cases: document.querySelector("#cases"),
       leaderboard: document.querySelector("#leaderboard"),
@@ -553,53 +477,25 @@
         state.sort = els.sort.value;
         render();
       });
-      els.file.addEventListener("change", loadSelectedFile);
 
       try {
-        const response = await fetch("../../tinyBench.json", { cache: "no-store" });
+        const response = await fetch("../tinyBench.json", { cache: "no-store" });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-        setData(await response.json(), "../../tinyBench.json");
+        setData(await response.json(), "../tinyBench.json");
       } catch (error) {
-        els.status.textContent = "Could not fetch ../../tinyBench.json. Use Load JSON if opening this file directly.";
         setData([], null);
       }
     }
 
-    function loadSelectedFile(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        try {
-          setData(JSON.parse(String(reader.result)), file.name);
-        } catch (error) {
-          els.status.textContent = `Could not parse ${file.name}`;
-        }
-      });
-      reader.readAsText(file);
-    }
-
     function setData(data, source) {
       state.data = Array.isArray(data) ? data : [];
-      if (source) {
-        els.status.textContent = `Loaded ${source}`;
-      }
       render();
     }
 
     function render() {
       const allEvals = state.data.flatMap((item) => normalizeEvals(item));
-      const models = new Set(allEvals.map((entry) => entry.evalLLM));
-      const avg = allEvals.length ? average(allEvals.map((entry) => entry.rating)) : 0;
-
-      els.caseCount.textContent = String(state.data.length);
-      els.evalCount.textContent = String(allEvals.length);
-      els.modelCount.textContent = String(models.size);
-      els.avgScore.textContent = avg.toFixed(1);
-
       renderLeaderboard(allEvals);
       renderCases();
     }

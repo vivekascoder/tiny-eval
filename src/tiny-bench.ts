@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import type { EvalDatasetItem, EvalResult, TinyBenchItem } from "./types.ts";
 
 export const tinyBenchPath = resolve("tinyBench.json");
+export const lpTinyBenchPath = resolve("lp", "tinyBench.json");
 
 export async function persistTinyBenchResult(
   item: EvalDatasetItem,
@@ -49,6 +50,9 @@ export async function persistTinyBenchResult(
   }
 
   await writeTinyBench(filePath, bench);
+  if (filePath === tinyBenchPath) {
+    await writeTinyBench(lpTinyBenchPath, bench);
+  }
 }
 
 async function readTinyBench(filePath: string): Promise<TinyBenchItem[]> {

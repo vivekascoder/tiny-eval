@@ -1,0 +1,48 @@
+[
+  {
+    "repo": "lodash/lodash",
+    "commit": "0ad7ab8c21e496f13d492e67800b057d73bdae45",
+    "pr": 1,
+    "prDocs": "# Replace the `Makefile` with a JavaScript-based build system.",
+    "prDiff": "evals/eval_run_2026-06-14T10-57-53-792Z/diffs/pr-1-0ad7ab8c21e4-original.diff",
+    "evals": [
+      {
+        "evalLLM": "minimax/minimax-m3",
+        "prSummaryLLM": "deepseek/deepseek-v4-flash",
+        "evalJudgeLLM": "deepseek/deepseek-v4-pro",
+        "rating": 1,
+        "evalLLMChangesDiff": "evals/eval_run_2026-06-14T10-57-53-792Z/diffs/pr-1-002-minimax_minimax-m3-candidate.diff"
+      },
+      {
+        "evalLLM": "deepseek/deepseek-v4-pro",
+        "prSummaryLLM": "deepseek/deepseek-v4-flash",
+        "evalJudgeLLM": "deepseek/deepseek-v4-pro",
+        "rating": 1,
+        "evalLLMChangesDiff": "evals/eval_run_2026-06-14T10-57-53-792Z/diffs/pr-1-001-deepseek_deepseek-v4-pro-candidate.diff"
+      }
+    ]
+  },
+  {
+    "repo": "expressjs/express",
+    "commit": "cc185a8c0ec18e9aa531e9d9395d5e349b07485e",
+    "pr": 645,
+    "prDocs": "# Incorrect reference to template in a comment\n\nThe comment here refers to using \"jade\" for layouts, but you're using \"ejs\" instead.",
+    "prDiff": "evals/eval_run_2026-06-14T11-03-11-320Z/diffs/pr-645-cc185a8c0ec1-original.diff",
+    "evals": [
+      {
+        "evalLLM": "deepseek/deepseek-v4-pro",
+        "prSummaryLLM": "deepseek/deepseek-v4-flash",
+        "evalJudgeLLM": "deepseek/deepseek-v4-pro",
+        "rating": 10,
+        "evalLLMChangesDiff": "evals/eval_run_2026-06-14T11-03-11-320Z/diffs/pr-645-001-deepseek_deepseek-v4-pro-candidate.diff"
+      },
+      {
+        "evalLLM": "minimax/minimax-m3",
+        "prSummaryLLM": "deepseek/deepseek-v4-flash",
+        "evalJudgeLLM": "deepseek/deepseek-v4-pro",
+        "rating": 1,
+        "evalLLMChangesDiff": "evals/eval_run_2026-06-14T11-03-11-320Z/diffs/pr-645-002-minimax_minimax-m3-candidate.diff"
+      }
+    ]
+  }
+]
