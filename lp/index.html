@@ -55,7 +55,7 @@
     }
 
     .shell {
-      width: min(1180px, calc(100% - 32px));
+      width: min(960px, calc(100% - 32px));
       margin: 0 auto;
     }
 
@@ -235,11 +235,10 @@
     }
 
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
-      gap: 42px;
-      align-items: center;
+      max-width: 760px;
+      margin: 0 auto;
       padding: 76px 0 54px;
+      text-align: center;
     }
 
     .eyebrow {
@@ -259,7 +258,7 @@
     }
 
     .lede {
-      margin: 22px 0 0;
+      margin: 22px auto 0;
       color: var(--text-muted);
       font-size: 18px;
       line-height: 1.7;
@@ -269,6 +268,7 @@
     .actions {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 12px;
       margin-top: 32px;
     }
@@ -298,94 +298,6 @@
       border-color: var(--text-accent);
       background: var(--background-modifier-hover);
       color: var(--text-normal);
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 36px;
-    }
-
-    .metric {
-      border: 1px solid var(--background-modifier-border);
-      border-radius: 8px;
-      background: rgba(22, 22, 22, 0.78);
-      padding: 14px;
-    }
-
-    .metric strong {
-      display: block;
-      color: var(--text-normal);
-      font-size: 19px;
-      line-height: 1.2;
-    }
-
-    .metric span {
-      display: block;
-      color: var(--text-muted);
-      font-size: 12px;
-      margin-top: 6px;
-      line-height: 1.4;
-    }
-
-    .preview {
-      border: 1px solid var(--background-modifier-border);
-      border-radius: 8px;
-      background: var(--background-secondary);
-      overflow: hidden;
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
-    }
-
-    .preview-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      min-height: 42px;
-      padding: 0 12px;
-      border-bottom: 1px solid var(--background-modifier-border);
-      background: var(--background-primary-alt);
-    }
-
-    .window-dots {
-      display: flex;
-      gap: 7px;
-    }
-
-    .window-dots span {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--text-faint);
-    }
-
-    .window-dots span:nth-child(1) {
-      background: var(--red);
-    }
-
-    .window-dots span:nth-child(2) {
-      background: var(--yellow);
-    }
-
-    .window-dots span:nth-child(3) {
-      background: var(--green);
-    }
-
-    .preview-title {
-      color: var(--text-muted);
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .report-frame {
-      display: block;
-      width: 100%;
-      height: 430px;
-      border: 0;
-      background: var(--background-primary);
     }
 
     .section {
@@ -503,12 +415,7 @@
 
     @media (max-width: 940px) {
       .hero {
-        grid-template-columns: 1fr;
         padding-top: 46px;
-      }
-
-      .preview {
-        order: -1;
       }
 
       .grid {
@@ -518,7 +425,7 @@
 
     @media (max-width: 620px) {
       .shell {
-        width: min(100% - 24px, 1180px);
+        width: min(100% - 24px, 960px);
       }
 
       .nav-inner {
@@ -545,28 +452,14 @@
         font-size: 16px;
       }
 
-      .metrics {
-        grid-template-columns: 1fr;
-      }
-
       .section-head {
         align-items: flex-start;
         flex-direction: column;
       }
 
-      .report-frame {
-        height: 360px;
-      }
-
       .footer {
         align-items: flex-start;
         flex-direction: column;
-      }
-    }
-
-    @media (max-width: 620px) {
-      .preview {
-        display: none;
       }
     }
   </style>
@@ -584,7 +477,7 @@
         <a href="#workflow">Workflow</a>
         <a href="#agents">Agents</a>
         <a href="#command">Command</a>
-        <a href="#report">Report</a>
+        <a href="tinybench/runs/">Report</a>
         <a href="tinybench/">Tiny Bench</a>
         <a href="https://github.com/vivekascoder/tiny-eval">GitHub</a>
       </nav>
@@ -597,9 +490,9 @@
           <a href="#workflow">Workflow</a>
           <a href="#agents">Agents</a>
           <a href="#command">Command</a>
-          <a href="#report">Report</a>
+          <a href="tinybench/runs/">Report</a>
           <a href="tinybench/">Tiny Bench</a>
-          <a href="eval_run_2026-06-14T09-39-08-943Z/index.html">Demo report</a>
+          <a href="tinybench/runs/">Demo report</a>
           <a href="https://github.com/vivekascoder/tiny-eval">GitHub</a>
         </div>
       </aside>
@@ -617,37 +510,12 @@
           judge their diffs, and publish a static report that is easy to inspect.
         </p>
         <div class="actions">
-          <a class="button primary" href="eval_run_2026-06-14T09-39-08-943Z/index.html">Open demo report</a>
+          <a class="button primary" href="tinybench/runs/">Open demo report</a>
           <a class="button" href="tinybench/">Tiny Bench</a>
           <a class="button" href="#command">View command</a>
         </div>
-        <div class="metrics" aria-label="Tiny Eval capabilities">
-          <div class="metric">
-            <strong>Parallel</strong>
-            <span>Bun workers run independent model and PR jobs concurrently.</span>
-          </div>
-          <div class="metric">
-            <strong>Grounded</strong>
-            <span>Each task starts from the commit immediately before a merged PR.</span>
-          </div>
-          <div class="metric">
-            <strong>Static</strong>
-            <span>Reports and diff artifacts are plain files under the eval run directory.</span>
-          </div>
-        </div>
       </div>
 
-      <aside class="preview" id="report" aria-label="Demo report preview">
-        <div class="preview-bar">
-          <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-          <div class="preview-title">eval_run_2026-06-14T09-39-08-943Z/index.html</div>
-        </div>
-        <iframe
-          class="report-frame"
-          title="Tiny Eval demo report"
-          src="eval_run_2026-06-14T09-39-08-943Z/index.html"
-        ></iframe>
-      </aside>
     </section>
 
     <section class="section" id="agents">
@@ -742,7 +610,7 @@ ${item.prDocs}</code></pre>
   <footer class="shell footer">
     <span>Tiny Eval</span>
     <a href="tinybench/">Tiny Bench</a>
-    <a href="eval_run_2026-06-14T09-39-08-943Z/index.html">Demo report</a>
+    <a href="tinybench/runs/">Demo report</a>
   </footer>
 </body>
 </html>

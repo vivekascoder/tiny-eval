@@ -247,21 +247,23 @@ async function writeRunPages(runs: EvalRunRecord[], dashboardPath: string): Prom
   await mkdir(runsDir, { recursive: true });
   await Promise.all(
     runs.map(async (run) => {
-      await writeFile(
-        run.detailPath,
-        renderTemplate("tinybench-run.html.j2", {
-          run,
-          title: `${run.repo}#${run.prNumber} ${run.evalLLM}`,
-          diffPayloadJson: safeScriptJson({
-            original: run.originalDiffText,
-            candidate: run.candidateDiffText,
-          }),
-          backHref: relativeHref(dirname(run.detailPath), dashboardPath),
-          clientScriptHref: relativeHref(dirname(run.detailPath), join(dirname(dashboardPath), "assets", "tinybench-client.js")),
-        }),
-      );
+      await writeFile(run.detailPath, renderRunPage(run, run.detailPath, dashboardPath));
     }),
   );
+  await writeFile(join(runsDir, "index.html"), renderRunPage(runs[0], join(runsDir, "index.html"), dashboardPath));
+}
+
+function renderRunPage(run: EvalRunRecord, pagePath: string, dashboardPath: string): string {
+  return renderTemplate("tinybench-run.html.j2", {
+    run,
+    title: `${run.repo}#${run.prNumber} ${run.evalLLM}`,
+    diffPayloadJson: safeScriptJson({
+      original: run.originalDiffText,
+      candidate: run.candidateDiffText,
+    }),
+    backHref: relativeHref(dirname(pagePath), dashboardPath),
+    clientScriptHref: relativeHref(dirname(pagePath), join(dirname(dashboardPath), "assets", "tinybench-client.js")),
+  });
 }
 
 async function buildClientBundle(outputDir: string): Promise<void> {
