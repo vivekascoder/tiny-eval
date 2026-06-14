@@ -36,6 +36,9 @@ Each run writes an `evals/eval_run_<timestamp>/` directory unless `--output` is 
 
 - `eval.json`: dataset and eval results.
 - `index.html`: static dark report with a model leaderboard ranked by average score.
+- `diffs/*.diff`: original PR diffs and candidate eval diffs.
+
+`eval.json` stores relative paths to diff files instead of embedding diff bodies. Dataset `prDiff` points to the original PR diff, result `originalPRDiff` points to the same file, and result `evalLLMChangesDiff` points to that eval job's candidate diff.
 
 Eval jobs run in parallel using Bun worker threads. Each worker gets an isolated checkout of the prepared repository cache, runs one `(PR, eval model)` job, then returns its result to the main process.
 

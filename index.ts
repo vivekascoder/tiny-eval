@@ -49,7 +49,8 @@ async function main() {
   const evalResults = await runEvalJobs(jobs, options);
 
   const output: EvalOutput = { evaDataset: dataset, evalResults };
-  await writeFile(join(outputDir, "eval.json"), `${JSON.stringify(output, null, 2)}\n`);
+  const persistedOutput = await writeDiffsAndLinkOutput(output, outputDir);
+  await writeFile(join(outputDir, "eval.json"), `${JSON.stringify(persistedOutput, null, 2)}\n`);
   await writeFile(join(outputDir, "index.html"), renderReport(output, options));
 
   console.log(`Wrote ${relative(process.cwd(), outputDir) || outputDir}`);
@@ -69,6 +70,53 @@ function resolveOutputDir(output: string | undefined, timestamp: string): string
   }
 
   return outputDir;
+}
+
+async function writeDiffsAndLinkOutput(output: EvalOutput, outputDir: string): Promise<EvalOutput> {
+  const diffsDir = join(outputDir, "diffs");
+  await mkdir(diffsDir, { recursive: true });
+
+  const originalDiffPaths = new Map<string, string>();
+  const evaDataset = await Promise.all(
+    output.evaDataset.map(async (item) => {
+      const diffPath = join("diffs", `pr-${item.prNumber}-${item.commitBeforePR.slice(0, 12)}-original.diff`);
+      await writeFile(join(outputDir, diffPath), item.prDiff);
+      originalDiffPaths.set(datasetKey(item.githubRepo, item.prNumber), diffPath);
+      return {
+        ...item,
+        prDiff: diffPath,
+      };
+    }),
+  );
+
+  const evalResults = await Promise.all(
+    output.evalResults.map(async (result, index) => {
+      const evalDiffPath = join(
+        "diffs",
+        `pr-${result.prNumber}-${String(index + 1).padStart(3, "0")}-${sanitizeFilePart(result.evalLLM)}-candidate.diff`,
+      );
+      await writeFile(join(outputDir, evalDiffPath), result.evalLLMChangesDiff);
+      const originalPRDiff = originalDiffPaths.get(datasetKey(result.repo, result.prNumber));
+      if (!originalPRDiff) {
+        throw new Error(`Could not find original diff path for ${result.repo}#${result.prNumber}`);
+      }
+      return {
+        ...result,
+        evalLLMChangesDiff: evalDiffPath,
+        originalPRDiff,
+      };
+    }),
+  );
+
+  return { evaDataset, evalResults };
+}
+
+function datasetKey(repo: string, prNumber: number): string {
+  return `${repo}#${prNumber}`;
+}
+
+function sanitizeFilePart(value: string): string {
+  return value.replace(/[^A-Za-z0-9_.-]+/g, "_").replace(/^_+|_+$/g, "") || "model";
 }
 
 main().catch((error: unknown) => {
