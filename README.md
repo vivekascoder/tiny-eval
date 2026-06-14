@@ -1,6 +1,6 @@
 # tiny-eval
 
-`tiny-eval` builds small coding-agent eval runs from historical GitHub pull requests.
+`tiny-eval` turns historical GitHub PRs into coding-agent eval cases by checking out the repo before the PR, asking models to reimplement the change, and judging candidate diffs against the original.
 
 ## CLI
 
@@ -55,6 +55,8 @@ The evaluator checks out the repository at the commit immediately before each se
 - `src/git.ts`, `src/github.ts`: host-side repository and GitHub API plumbing.
 
 ## TinyBench
+
+`TinyBench` turns tiny-eval outputs into a browsable model leaderboard, linking each score back to the PR task, original diff, candidate patch, and judge notes.
 
 ```json
 [
