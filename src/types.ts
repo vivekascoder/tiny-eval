@@ -46,3 +46,20 @@ export type EvalOutput = {
   evaDataset: EvalDatasetItem[];
   evalResults: EvalResult[];
 };
+
+export type TinyBenchEval = {
+  evalLLM: string;
+  prSummaryLLM: string;
+  evalJudgeLLM: string;
+  rating: number;
+  evalLLMChangesDiff: string;
+};
+
+export type TinyBenchItem = {
+  repo: string;
+  commit: string;
+  pr: number;
+  prDocs: string;
+  prDiff: string;
+  evals: TinyBenchEval[];
+};

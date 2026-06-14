@@ -29,7 +29,11 @@ export type EvalWorkerResponse =
       stack?: string;
     };
 
-export async function runEvalJobs(jobs: EvalJob[], options: CliOptions): Promise<EvalResult[]> {
+export async function runEvalJobs(
+  jobs: EvalJob[],
+  options: CliOptions,
+  onResult?: (result: EvalResult, index: number) => Promise<void>,
+): Promise<EvalResult[]> {
   if (jobs.length === 0) {
     return [];
   }
@@ -87,9 +91,15 @@ export async function runEvalJobs(jobs: EvalJob[], options: CliOptions): Promise
         }
 
         results[response.index] = response.result;
-        completed += 1;
-        console.log(`[parallel] completed ${completed}/${jobs.length}`);
-        startNext();
+        void Promise.resolve(onResult?.(response.result, response.index))
+          .then(() => {
+            completed += 1;
+            console.log(`[parallel] completed ${completed}/${jobs.length}`);
+            startNext();
+          })
+          .catch((error: unknown) => {
+            rejectOnce(error instanceof Error ? error : new Error(String(error)));
+          });
       });
 
       worker.addEventListener("error", (event) => {

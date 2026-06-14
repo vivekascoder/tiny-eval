@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { z } from "zod";
 import { assertNotGitIgnored } from "./git.ts";
-import { getOpenRouter } from "./model.ts";
+import { callModelWithContext, getOpenRouter } from "./model.ts";
 import { buildCodingAgentPrompt } from "./prompts.ts";
 import type { EvalDatasetItem } from "./types.ts";
 import { safeRepoPath, truncate } from "./utils.ts";
@@ -86,13 +86,15 @@ export async function runCodingAgent(repoDir: string, item: EvalDatasetItem, mod
     },
   });
 
-  const result = callModel(getOpenRouter(), {
-    model,
-    input: buildCodingAgentPrompt(item),
-    tools: [read, bash, edit, write] as const,
-    stopWhen: stepCountIs(12),
-    allowFinalResponse: true,
-  });
+  const result = callModelWithContext("eval", model, () =>
+    callModel(getOpenRouter(), {
+      model,
+      input: buildCodingAgentPrompt(item),
+      tools: [read, bash, edit, write] as const,
+      stopWhen: stepCountIs(12),
+      allowFinalResponse: true,
+    }),
+  );
   await result.getText();
 }
 

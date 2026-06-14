@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TinyBench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background-primary: #202020;
+      --background-primary-alt: #1a1a1a;
+      --background-secondary: #161616;
+      --background-secondary-alt: #0f0f0f;
+      --background-modifier-border: #363636;
+      --background-modifier-hover: #2a2a2a;
+      --text-normal: #dcddde;
+      --text-muted: #999999;
+      --text-faint: #666666;
+      --text-accent: #a48cf2;
+      --text-accent-hover: #b9a7ff;
+      --interactive-accent: #7f6df2;
+      --green: #70c27e;
+      --yellow: #d6b96d;
+      --red: #ff6b6b;
+      --line: #2b2b2b;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--background-secondary-alt);
+      color: var(--text-normal);
+      font-family: "Iosevka Charon", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background-primary);
+    }
+
+    a {
+      color: var(--text-accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+    }
+
+    a:hover { color: var(--text-accent-hover); }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: rgba(32, 32, 32, 0.96);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      width: min(1240px, calc(100% - 32px));
+      min-height: 68px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 6px;
+      background: var(--background-secondary);
+      color: var(--text-accent);
+      font-weight: 700;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 20px;
+      line-height: 1.1;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .subtle {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .control {
+      height: 36px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      background: var(--background-secondary);
+      color: var(--text-normal);
+      outline: none;
+    }
+
+    .control:hover {
+      border-color: var(--interactive-accent);
+    }
+
+    .search {
+      width: min(300px, 52vw);
+      padding: 0 10px;
+    }
+
+    .select {
+      padding: 0 30px 0 10px;
+    }
+
+    .button {
+      display: inline-grid;
+      place-items: center;
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      background: var(--background-secondary);
+      color: var(--text-normal);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      border-color: var(--interactive-accent);
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+    }
+
+    .file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .stat {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 6px;
+      color: var(--text-normal);
+      font-size: 28px;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 8px;
+      background: var(--background-secondary);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border-bottom: 1px solid var(--background-modifier-border);
+      background: var(--background-primary-alt);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-normal);
+      overflow-wrap: anywhere;
+    }
+
+    .bench-list {
+      display: grid;
+    }
+
+    .case-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .case-row:last-child {
+      border-bottom: 0;
+    }
+
+    .case-main {
+      min-width: 0;
+    }
+
+    .case-title {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .repo {
+      font-size: 16px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      max-width: 100%;
+      padding: 2px 7px;
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 999px;
+      background: var(--background-primary-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .docs {
+      color: var(--text-muted);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .eval-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .eval {
+      border: 1px solid var(--background-modifier-border);
+      border-radius: 7px;
+      background: var(--background-primary-alt);
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .eval-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .model {
+      color: var(--text-normal);
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .score {
+      display: inline-grid;
+      place-items: center;
+      min-width: 34px;
+      height: 28px;
+      border-radius: 6px;
+      color: var(--background-secondary-alt);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .score.good { background: var(--green); }
+    .score.mid { background: var(--yellow); }
+    .score.bad { background: var(--red); }
+
+    .eval-meta {
+      display: grid;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .case-score {
+      min-width: 88px;
+      text-align: right;
+    }
+
+    .case-score strong {
+      display: block;
+      font-size: 24px;
+      color: var(--green);
+    }
+
+    .leaderboard {
+      display: grid;
+    }
+
+    .leader {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .leader:last-child {
+      border-bottom: 0;
+    }
+
+    .rank {
+      color: var(--text-faint);
+      font-size: 13px;
+    }
+
+    .bar-track {
+      height: 6px;
+      margin-top: 7px;
+      border-radius: 999px;
+      background: var(--background-primary);
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--interactive-accent);
+    }
+
+    .empty {
+      padding: 28px 14px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    .status {
+      min-height: 18px;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    @media (max-width: 920px) {
+      .topbar-inner {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 14px 0;
+      }
+
+      .toolbar {
+        justify-content: flex-start;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .case-score {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell,
+      .topbar-inner {
+        width: min(100% - 20px, 1240px);
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .case-row {
+        grid-template-columns: 1fr;
+      }
+
+      .search,
+      .select,
+      .button {
+        width: 100%;
+      }
+
+      .toolbar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="mark">tb</div>
+        <div>
+          <h1>TinyBench</h1>
+          <div class="subtle">tinyBench.json model ratings</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input id="search" class="control search" type="search" placeholder="Filter repo, PR, model">
+        <select id="sort" class="control select" aria-label="Sort cases">
+          <option value="rating-desc">Best average</option>
+          <option value="rating-asc">Worst average</option>
+          <option value="repo">Repository</option>
+          <option value="evals-desc">Most evals</option>
+        </select>
+        <label class="button" for="file">Load JSON</label>
+        <input id="file" class="file-input" type="file" accept="application/json,.json">
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div id="status" class="status">Loading ../../tinyBench.json</div>
+
+    <section class="stats" aria-label="TinyBench summary">
+      <div class="stat"><span>Cases</span><strong id="caseCount">0</strong></div>
+      <div class="stat"><span>Evals</span><strong id="evalCount">0</strong></div>
+      <div class="stat"><span>Models</span><strong id="modelCount">0</strong></div>
+      <div class="stat"><span>Average</span><strong id="avgScore">0.0</strong></div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Cases</h2>
+          <div id="visibleCount" class="subtle">0 shown</div>
+        </div>
+        <div id="cases" class="bench-list"></div>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Leaderboard</h2>
+          <div class="subtle">avg rating</div>
+        </div>
+        <div id="leaderboard" class="leaderboard"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      data: [],
+      query: "",
+      sort: "rating-desc",
+    };
+
+    const els = {
+      status: document.querySelector("#status"),
+      search: document.querySelector("#search"),
+      sort: document.querySelector("#sort"),
+      file: document.querySelector("#file"),
+      caseCount: document.querySelector("#caseCount"),
+      evalCount: document.querySelector("#evalCount"),
+      modelCount: document.querySelector("#modelCount"),
+      avgScore: document.querySelector("#avgScore"),
+      visibleCount: document.querySelector("#visibleCount"),
+      cases: document.querySelector("#cases"),
+      leaderboard: document.querySelector("#leaderboard"),
+    };
+
+    init();
+
+    async function init() {
+      els.search.addEventListener("input", () => {
+        state.query = els.search.value.trim().toLowerCase();
+        render();
+      });
+      els.sort.addEventListener("change", () => {
+        state.sort = els.sort.value;
+        render();
+      });
+      els.file.addEventListener("change", loadSelectedFile);
+
+      try {
+        const response = await fetch("../../tinyBench.json", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        setData(await response.json(), "../../tinyBench.json");
+      } catch (error) {
+        els.status.textContent = "Could not fetch ../../tinyBench.json. Use Load JSON if opening this file directly.";
+        setData([], null);
+      }
+    }
+
+    function loadSelectedFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        try {
+          setData(JSON.parse(String(reader.result)), file.name);
+        } catch (error) {
+          els.status.textContent = `Could not parse ${file.name}`;
+        }
+      });
+      reader.readAsText(file);
+    }
+
+    function setData(data, source) {
+      state.data = Array.isArray(data) ? data : [];
+      if (source) {
+        els.status.textContent = `Loaded ${source}`;
+      }
+      render();
+    }
+
+    function render() {
+      const allEvals = state.data.flatMap((item) => normalizeEvals(item));
+      const models = new Set(allEvals.map((entry) => entry.evalLLM));
+      const avg = allEvals.length ? average(allEvals.map((entry) => entry.rating)) : 0;
+
+      els.caseCount.textContent = String(state.data.length);
+      els.evalCount.textContent = String(allEvals.length);
+      els.modelCount.textContent = String(models.size);
+      els.avgScore.textContent = avg.toFixed(1);
+
+      renderLeaderboard(allEvals);
+      renderCases();
+    }
+
+    function renderLeaderboard(evals) {
+      const grouped = new Map();
+      for (const entry of evals) {
+        const current = grouped.get(entry.evalLLM) || { total: 0, count: 0 };
+        current.total += entry.rating;
+        current.count += 1;
+        grouped.set(entry.evalLLM, current);
+      }
+
+      const rows = Array.from(grouped, ([model, stats]) => ({
+        model,
+        average: stats.total / Math.max(stats.count, 1),
+        count: stats.count,
+      })).sort((left, right) => right.average - left.average || left.model.localeCompare(right.model));
+
+      if (!rows.length) {
+        els.leaderboard.innerHTML = `<div class="empty">No evals loaded.</div>`;
+        return;
+      }
+
+      els.leaderboard.innerHTML = rows.map((row, index) => `
+        <div class="leader">
+          <div class="rank">${index + 1}</div>
+          <div>
+            <div class="model">${escapeHtml(row.model)}</div>
+            <div class="bar-track"><div class="bar" style="width: ${Math.max(0, Math.min(100, row.average * 10))}%"></div></div>
+          </div>
+          <div>
+            <strong>${row.average.toFixed(1)}</strong>
+            <div class="subtle">${row.count} eval${row.count === 1 ? "" : "s"}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderCases() {
+      const query = state.query;
+      const rows = state.data
+        .map((item) => ({ item, evals: normalizeEvals(item), average: caseAverage(item) }))
+        .filter(({ item, evals }) => matchesQuery(item, evals, query))
+        .sort(caseSorter(state.sort));
+
+      els.visibleCount.textContent = `${rows.length} shown`;
+
+      if (!rows.length) {
+        els.cases.innerHTML = `<div class="empty">No cases match the current filter.</div>`;
+        return;
+      }
+
+      els.cases.innerHTML = rows.map(({ item, evals, average }) => `
+        <article class="case-row">
+          <div class="case-main">
+            <div class="case-title">
+              <h3 class="repo">${escapeHtml(item.repo || "unknown/repo")}</h3>
+              <span class="pill">PR #${escapeHtml(String(item.pr ?? ""))}</span>
+              <span class="pill">${escapeHtml(shortCommit(item.commit))}</span>
+            </div>
+            <p class="docs">${escapeHtml(item.prDocs || "No PR docs captured.")}</p>
+            <div class="links">
+              ${item.prDiff ? `<a href="${escapeAttr(pathHref(item.prDiff))}">original diff</a>` : ""}
+            </div>
+            <div class="eval-grid">
+              ${evals.map((entry) => renderEval(entry)).join("")}
+            </div>
+          </div>
+          <div class="case-score">
+            <div class="subtle">case avg</div>
+            <strong>${average.toFixed(1)}</strong>
+            <div class="subtle">${evals.length} eval${evals.length === 1 ? "" : "s"}</div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderEval(entry) {
+      return `
+        <div class="eval">
+          <div class="eval-head">
+            <div class="model">${escapeHtml(entry.evalLLM)}</div>
+            <div class="score ${scoreClass(entry.rating)}">${Number(entry.rating).toFixed(0)}</div>
+          </div>
+          <div class="eval-meta">
+            <div>judge ${escapeHtml(entry.evalJudgeLLM)}</div>
+            <div>summary ${escapeHtml(entry.prSummaryLLM)}</div>
+            ${entry.evalLLMChangesDiff ? `<a href="${escapeAttr(pathHref(entry.evalLLMChangesDiff))}">candidate diff</a>` : ""}
+          </div>
+        </div>
+      `;
+    }
+
+    function normalizeEvals(item) {
+      return Array.isArray(item.evals)
+        ? item.evals.map((entry) => ({
+            evalLLM: String(entry.evalLLM || "unknown"),
+            prSummaryLLM: String(entry.prSummaryLLM || "unknown"),
+            evalJudgeLLM: String(entry.evalJudgeLLM || "unknown"),
+            evalLLMChangesDiff: String(entry.evalLLMChangesDiff || ""),
+            rating: clampRating(Number(entry.rating)),
+          }))
+        : [];
+    }
+
+    function matchesQuery(item, evals, query) {
+      if (!query) return true;
+      const haystack = [
+        item.repo,
+        item.pr,
+        item.commit,
+        item.prDocs,
+        item.prDiff,
+        ...evals.flatMap((entry) => [
+          entry.evalLLM,
+          entry.prSummaryLLM,
+          entry.evalJudgeLLM,
+          entry.evalLLMChangesDiff,
+        ]),
+      ].join(" ").toLowerCase();
+      return haystack.includes(query);
+    }
+
+    function caseSorter(sort) {
+      return (left, right) => {
+        if (sort === "rating-asc") return left.average - right.average || repoCompare(left, right);
+        if (sort === "repo") return repoCompare(left, right);
+        if (sort === "evals-desc") return right.evals.length - left.evals.length || repoCompare(left, right);
+        return right.average - left.average || repoCompare(left, right);
+      };
+    }
+
+    function repoCompare(left, right) {
+      return String(left.item.repo || "").localeCompare(String(right.item.repo || "")) ||
+        Number(left.item.pr || 0) - Number(right.item.pr || 0);
+    }
+
+    function caseAverage(item) {
+      const evals = normalizeEvals(item);
+      return evals.length ? average(evals.map((entry) => entry.rating)) : 0;
+    }
+
+    function average(values) {
+      return values.reduce((total, value) => total + value, 0) / Math.max(values.length, 1);
+    }
+
+    function clampRating(value) {
+      if (!Number.isFinite(value)) return 0;
+      return Math.max(0, Math.min(10, value));
+    }
+
+    function scoreClass(value) {
+      if (value >= 8) return "good";
+      if (value >= 5) return "mid";
+      return "bad";
+    }
+
+    function shortCommit(commit) {
+      const value = String(commit || "");
+      return value.length > 12 ? value.slice(0, 12) : value || "no commit";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(String(value));
+    }
+
+    function pathHref(value) {
+      const path = String(value || "");
+      if (/^(?:https?:)?\/\//.test(path) || path.startsWith("/") || path.startsWith("../") || path.startsWith("./")) {
+        return path;
+      }
+      return `../../${path}`;
+    }
+  </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import { repoCachePath } from "./src/git.ts";
 import { validateOpenRouterKey } from "./src/model.ts";
 import { runEvalJobs, type EvalJob } from "./src/parallel.ts";
 import { renderReport } from "./src/report.ts";
+import { persistTinyBenchResult, tinyBenchPath } from "./src/tiny-bench.ts";
 import type { EvalOutput } from "./src/types.ts";
 
 await preferDotenvKeys(["OPENROUTER_API_KEY", "GITHUB_TOKEN"]);
@@ -46,7 +47,35 @@ async function main() {
   console.log(
     `Running ${jobs.length} eval job(s) from ${dataset.length} item(s) across ${options.evalLLMs.length} model(s) with concurrency ${Math.min(options.concurrency, jobs.length)}...`,
   );
-  const evalResults = await runEvalJobs(jobs, options);
+  let tinyBenchWrite = Promise.resolve();
+  const evalResults = await runEvalJobs(jobs, options, async (result, index) => {
+    tinyBenchWrite = tinyBenchWrite.then(async () => {
+      const item = dataset.find(
+        (candidate) => candidate.githubRepo === result.repo && candidate.prNumber === result.prNumber,
+      );
+      if (!item) {
+        throw new Error(`Could not find dataset item for ${result.repo}#${result.prNumber}`);
+      }
+
+      const diffsDir = join(outputDir, "diffs");
+      const originalDiffPath = join("diffs", `pr-${item.prNumber}-${item.commitBeforePR.slice(0, 12)}-original.diff`);
+      const evalDiffPath = join(
+        "diffs",
+        `pr-${result.prNumber}-${String(index + 1).padStart(3, "0")}-${sanitizeFilePart(result.evalLLM)}-candidate.diff`,
+      );
+      await mkdir(diffsDir, { recursive: true });
+      await writeFile(join(outputDir, originalDiffPath), item.prDiff);
+      await writeFile(join(outputDir, evalDiffPath), result.evalLLMChangesDiff);
+
+      const outputPath = relative(process.cwd(), outputDir) || outputDir;
+      await persistTinyBenchResult(
+        { ...item, prDiff: join(outputPath, originalDiffPath) },
+        { ...result, originalPRDiff: join(outputPath, originalDiffPath), evalLLMChangesDiff: join(outputPath, evalDiffPath) },
+      );
+      console.log(`[tinybench] updated ${relative(process.cwd(), tinyBenchPath) || tinyBenchPath}`);
+    });
+    await tinyBenchWrite;
+  });
 
   const output: EvalOutput = { evaDataset: dataset, evalResults };
   const persistedOutput = await writeDiffsAndLinkOutput(output, outputDir);
